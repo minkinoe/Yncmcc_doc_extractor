@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word文档内容提取工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-form {
+            text-align: center;
+        }
+        .file-input {
+            display: none;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .instructions {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        /* 拖放区域样式 */
+        .drop-area {
+            border: 2px dashed #cccccc;
+            border-radius: 8px;
+            padding: 60px 20px;
+            text-align: center;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+        .drop-area.active {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+        .drop-area p {
+            margin: 0;
+            color: #666;
+            font-size: 18px;
+        }
+        .drop-area-icon {
+            font-size: 48px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .drop-area.active .drop-area-icon {
+            color: #4CAF50;
+        }
+        .file-name-display {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+            display: none;
+        }
+        .file-name-display.show {
+            display: block;
+        }
+        .browse-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .browse-btn:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Word文档内容提取工具</h1>
+        <form id="upload-form" class="upload-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div id="drop-area" class="drop-area">
+                <div class="drop-area-icon">📁</div>
+                <p>将ZIP文件拖放到此处，或点击下方按钮选择文件</p>
+                <input type="file" id="zip_file" name="zip_file" accept=".zip" class="file-input" required>
+                <button type="button" class="browse-btn" onclick="document.getElementById('zip_file').click()">
+                    选择文件
+                </button>
+                <div id="file-name-display" class="file-name-display">
+                    <span id="selected-file-name">未选择文件</span>
+                </div>
+            </div>
+            <button type="submit" id="submit-btn" class="submit-btn" disabled>
+                上传并处理
+            </button>
+        </form>
+        
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ul>
+                <li>请上传包含Word文档(.doc或.docx)的ZIP压缩文件</li>
+                <li>您可以直接将文件拖放到上方虚线框内，或点击"选择文件"按钮</li>
+                <li>系统将自动提取文档中的价格信息</li>
+                <li>支持提取：单号、总估算价格、宽带维护费、宽带服务费、终端费等信息</li>
+                <li>系统会自动计算费用总和并与文档中的维护费合计进行比较验证</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('zip_file');
+        const submitBtn = document.getElementById('submit-btn');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const selectedFileName = document.getElementById('selected-file-name');
+        const uploadForm = document.getElementById('upload-form');
+        
+        // 拖放事件处理
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // 高亮拖放区域
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('active');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('active');
+        }
+        
+        // 处理文件拖放
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                const file = files[0];
+                // 检查文件类型
+                if (file.name.toLowerCase().endsWith('.zip')) {
+                    // 创建一个新的FileList对象并设置文件
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                    
+                    // 更新UI
+                    updateFileDisplay(file.name);
+                } else {
+                    alert('请选择ZIP格式的文件！');
+                }
+            }
+        }
+        
+        // 处理文件选择
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const file = this.files[0];
+                updateFileDisplay(file.name);
+            }
+        });
+        
+        // 更新文件显示
+        function updateFileDisplay(fileName) {
+            selectedFileName.textContent = fileName;
+            fileNameDisplay.classList.add('show');
+            submitBtn.disabled = false;
+        }
+        
+        // 表单提交前的处理
+        uploadForm.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            submitBtn.textContent = '处理中...';
+        });
+    </script>
+</body>
+</html>

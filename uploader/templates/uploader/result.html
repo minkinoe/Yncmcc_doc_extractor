@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提取结果</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, #2196F3, #4CAF50);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        
+        .result-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .result-card h2 {
+            color: #2196F3;
+            margin-top: 0;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-size: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .price-value {
+            color: #f44336;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .failure {
+            color: #f44336;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .verification-result {
+            grid-column: 1 / -1;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .verification-result.success-bg {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        
+        .verification-result.failure-bg {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 60px 20px;
+            font-size: 18px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        .back-btn {
+            display: block;
+            margin: 30px auto 0;
+            background: linear-gradient(to right, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            width: fit-content;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+        }
+        
+        .back-btn:hover {
+            background: linear-gradient(to right, #1976D2, #1565C0);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+        }
+        
+        .back-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+        }
+        
+        .success-icon, .failure-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>提取结果</h1>
+        
+        {% if results %}
+            {% for result in results %}
+            <div class="result-card">
+                <h2>文档信息</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">单号</span>
+                        <span>{{ result.code_part }}</span>
+                    </div>
+                    
+                    {% if result.total_price %}
+                    <div class="info-item">
+                        <span class="info-label">总估算价格</span>
+                        <span class="price-value">{{ result.total_price }}元</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if result.doc_maintenance_total %}
+                    <div class="info-item">
+                        <span class="info-label">维护费（含税）</span>
+                        <span class="price-value">{{ result.doc_maintenance_total|floatformat:4 }}元</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="info-item">
+                        <span class="info-label">宽带维护费（含税）</span>
+                        <span class="price-value">{{ result.maintenance_fee|floatformat:4 }}元</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">宽带服务费（含税）</span>
+                        <span class="price-value">{{ result.service_fee|floatformat:4 }}元</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">终端费（含税）</span>
+                        <span class="price-value">{{ result.terminal_fee|floatformat:4 }}元</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <span class="info-label">费用总和</span>
+                        <span class="price-value">{{ result.total_fees|floatformat:4 }}元</span>
+                    </div>
+                </div>
+                
+                {% if result.doc_maintenance_total is not None %}
+                <div class="info-item verification-result {% if result.verification_passed %}success-bg{% else %}failure-bg{% endif %}">
+                    <span class="{% if result.verification_passed %}success-icon{% else %}failure-icon{% endif %}">
+                        {% if result.verification_passed %}✓{% else %}✗{% endif %}
+                    </span>
+                    <span>
+                        {% if result.verification_passed %}验算通过：计算总和与文档中维护费合计一致{% else %}验算失败：计算总和与文档中维护费合计不一致{% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <div class="no-results-icon">📄</div>
+                <p>没有找到可提取的Word文档或无法提取有效信息</p>
+            </div>
+        {% endif %}
+        
+        <a href="{% url 'upload_file' %}" class="back-btn">返回上传页面</a>
+    </div>
+</body>
+</html>

@@ -6,7 +6,7 @@
 
 ## 功能特性
 
-- **ZIP文件上传**：支持直接上传ZIP压缩文件或通过拖放方式上传
+- **多格式文件上传**：支持直接上传ZIP压缩文件或Word文档(.doc, .docx)，可通过拖放方式上传
 - **自动提取**：自动解压ZIP文件并提取Word文档中的关键信息
 - **费用计算**：自动计算各类费用并进行验证
 - **结果展示**：以友好的界面展示提取结果和验证信息
@@ -24,8 +24,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone <repository_url>
-cd django_project/wordextractor
+git clone git@github.com:minkinoe/Yncmcc_doc_extractor.git
+cd wordextractor
 ```
 
 ### 2. 创建并激活虚拟环境
@@ -61,7 +61,7 @@ python manage.py runserver
 ## 使用方法
 
 1. 访问 `http://127.0.0.1:8000/`
-2. 点击上传区域或直接拖放ZIP文件到页面上
+2. 点击上传区域或直接拖放ZIP文件或Word文档(.doc, .docx)到页面上
 3. 系统将自动处理文件并显示提取结果
 4. 查看提取的单号、各类费用信息和验证结果
 5. 点击"返回上传"按钮可以上传新文件
@@ -69,6 +69,7 @@ python manage.py runserver
 ## 支持的文件格式
 
 - ZIP压缩文件，包含Word文档(.doc, .docx)
+- 直接上传的Word文档(.doc, .docx)
 
 ## 项目结构
 
@@ -88,7 +89,7 @@ wordextractor/
 
 ## 注意事项
 
-1. 请确保上传的ZIP文件中包含有效的Word文档
+1. 请确保上传的ZIP文件中包含有效的Word文档，或上传有效的Word文档(.doc, .docx)
 2. 系统会在后台自动清理临时文件，确保磁盘空间合理使用
 3. 对于大型文件，处理时间可能会有所延长
 
@@ -98,4 +99,4 @@ wordextractor/
 
 ## 联系方式
 
-如有问题或建议，请联系开发团队
+如有问题或建议，请联系项目维护人员。

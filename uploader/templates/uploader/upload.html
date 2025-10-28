@@ -116,9 +116,9 @@
             {% csrf_token %}
             <div id="drop-area" class="drop-area">
                 <div class="drop-area-icon">📁</div>
-                <p>将ZIP文件拖放到此处，或点击下方按钮选择文件</p>
-                <input type="file" id="zip_file" name="zip_file" accept=".zip" class="file-input" required>
-                <button type="button" class="browse-btn" onclick="document.getElementById('zip_file').click()">
+                <p>将ZIP或Word文件拖放到此处，或点击下方按钮选择文件</p>
+                <input type="file" id="file_input" name="word_file" accept=".zip,.doc,.docx" class="file-input" required>
+                <button type="button" class="browse-btn" onclick="document.getElementById('file_input').click()">
                     选择文件
                 </button>
                 <div id="file-name-display" class="file-name-display">
@@ -133,7 +133,7 @@
         <div class="instructions">
             <h3>使用说明：</h3>
             <ul>
-                <li>请上传包含Word文档(.doc或.docx)的ZIP压缩文件</li>
+                <li>请上传ZIP压缩文件(包含Word文档)或直接上传Word文档(.doc或.docx)</li>
                 <li>您可以直接将文件拖放到上方虚线框内，或点击"选择文件"按钮</li>
                 <li>系统将自动提取文档中的价格信息</li>
                 <li>支持提取：单号、总估算价格、宽带维护费、宽带服务费、终端费等信息</li>
@@ -145,7 +145,7 @@
     <script>
         // 获取DOM元素
         const dropArea = document.getElementById('drop-area');
-        const fileInput = document.getElementById('zip_file');
+        const fileInput = document.getElementById('file_input');
         const submitBtn = document.getElementById('submit-btn');
         const fileNameDisplay = document.getElementById('file-name-display');
         const selectedFileName = document.getElementById('selected-file-name');
@@ -188,7 +188,14 @@
             if (files.length > 0) {
                 const file = files[0];
                 // 检查文件类型
-                if (file.name.toLowerCase().endsWith('.zip')) {
+                if (['.zip', '.doc', '.docx'].some(ext => file.name.toLowerCase().endsWith(ext))) {
+                    // 根据文件类型设置正确的input name属性
+                    if (file.name.toLowerCase().endsWith('.zip')) {
+                        fileInput.name = 'zip_file';
+                    } else {
+                        fileInput.name = 'word_file';
+                    }
+                    
                     // 创建一个新的FileList对象并设置文件
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
@@ -197,7 +204,7 @@
                     // 更新UI
                     updateFileDisplay(file.name);
                 } else {
-                    alert('请选择ZIP格式的文件！');
+                    alert('请选择ZIP或Word格式(.doc, .docx)的文件！');
                 }
             }
         }
@@ -206,6 +213,12 @@
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
                 const file = this.files[0];
+                // 根据文件类型设置正确的input name属性
+                if (file.name.toLowerCase().endsWith('.zip')) {
+                    this.name = 'zip_file';
+                } else {
+                    this.name = 'word_file';
+                }
                 updateFileDisplay(file.name);
             }
         });

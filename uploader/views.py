@@ -3,38 +3,44 @@ import logging
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
-from .utils import extract_info_from_zip
+from .utils import extract_info_from_zip, extract_info_from_word
 
 # 配置日志
 logger = logging.getLogger(__name__)
 
 def upload_file(request):
     """文件上传页面"""
-    if request.method == 'POST' and request.FILES.get('zip_file'):
-        zip_file = request.FILES['zip_file']
+    if request.method == 'POST' and (request.FILES.get('zip_file') or request.FILES.get('word_file')):
+        # 检查是ZIP文件还是Word文件
+        file = request.FILES.get('zip_file') or request.FILES.get('word_file')
+        is_zip = file.name.lower().endswith('.zip')
+        is_word = file.name.lower().endswith('.doc') or file.name.lower().endswith('.docx')
         
         # 验证文件类型
-        if not zip_file.name.lower().endswith('.zip'):
-            messages.error(request, '请上传ZIP格式的文件！')
+        if not (is_zip or is_word):
+            messages.error(request, '请上传ZIP格式或Word格式(.doc, .docx)的文件！')
             return render(request, 'uploader/upload.html')
         
         try:
             # 保存上传的文件
             os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
-            file_path = os.path.join(settings.MEDIA_ROOT, zip_file.name)
+            file_path = os.path.join(settings.MEDIA_ROOT, file.name)
             
             with open(file_path, 'wb+') as destination:
                 try:
-                    for chunk in zip_file.chunks():
+                    for chunk in file.chunks():
                         destination.write(chunk)
                 except Exception as e:
                     logger.error(f"文件保存失败: {str(e)}")
                     messages.error(request, '文件上传保存失败，请重试！')
                     return render(request, 'uploader/upload.html')
             
-            # 处理ZIP文件并提取信息
-            logger.info(f"开始处理文件: {zip_file.name}")
-            results = extract_info_from_zip(file_path)
+            # 根据文件类型选择不同的处理函数
+            logger.info(f"开始处理文件: {file.name}")
+            if is_zip:
+                results = extract_info_from_zip(file_path)
+            else:
+                results = extract_info_from_word(file_path)
             
             # 检查结果是否为空
             if not results:

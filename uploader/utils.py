@@ -205,6 +205,7 @@ def extract_info_from_word(file_path):
                         'total_fees': 0.0,
                         'doc_maintenance_total': None,
                         'total_price': None,
+                        'fiber_length': None,
                         'verification_passed': False,
                         'file_name': file_name,
                         'extraction_status': '成功'
@@ -303,6 +304,66 @@ def extract_info_from_word(file_path):
                     info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
                     print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                     
+                    # 提取光缆长度 - 更灵活的正则表达式
+                    # 尝试多种可能的光缆长度格式
+                    fiber_patterns = [
+                        re.compile(r'光缆\s*([\d.]+)\s*米'),  # 光缆 123 米
+                        re.compile(r'光缆([\d.]+)米'),         # 光缆123米
+                        re.compile(r'光缆长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆长度：123米
+                        re.compile(r'光缆长度\s*为\s*([\d.]+)\s*米'),  # 光缆长度为123米
+                        re.compile(r'光缆\s*长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆 长度：123米
+                        re.compile(r'光缆\s*约\s*([\d.]+)\s*米'),  # 光缆约123米
+                        re.compile(r'([\d.]+)\s*米\s*光缆'),  # 123米光缆
+                        # 添加更多可能的格式
+                        re.compile(r'光缆\s*总长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆总长度：123米
+                        re.compile(r'光缆\s*总长\s*[：:]\s*([\d.]+)\s*米'),    # 光缆总长：123米
+                        re.compile(r'光纤\s*([\d.]+)\s*米'),  # 光纤 123 米
+                        re.compile(r'光纤([\d.]+)米'),         # 光纤123米
+                        re.compile(r'光缆\s*铺设\s*([\d.]+)\s*米'),  # 光缆铺设 123 米
+                        re.compile(r'铺设\s*光缆\s*([\d.]+)\s*米')   # 铺设光缆 123 米
+                    ]
+                    
+                    # 首先在过滤后的文本中搜索
+                    print(f"\n=== 开始搜索光缆长度信息 ===")
+                    print(f"过滤后文本预览: {filtered_text[:200]}...")
+                    
+                    fiber_length = None
+                    for pattern in fiber_patterns:
+                        fiber_match = pattern.search(filtered_text)
+                        if fiber_match:
+                            fiber_length_str = fiber_match.group(1)
+                            fiber_length = float(fiber_length_str)
+                            print(f"在过滤后文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
+                            info['fiber_length'] = fiber_length
+                            break
+                    
+                    # 如果在过滤后的文本中没有找到，尝试在完整的原始文本中搜索
+                    if fiber_length is None:
+                        print("在过滤后文本中未找到光缆长度信息，尝试在完整文本中搜索...")
+                        combined_text = '\n'.join(full_text)
+                        for pattern in fiber_patterns:
+                            fiber_match = pattern.search(combined_text)
+                            if fiber_match:
+                                fiber_length_str = fiber_match.group(1)
+                                fiber_length = float(fiber_length_str)
+                                print(f"在完整文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
+                                info['fiber_length'] = fiber_length
+                                break
+                    
+                    if fiber_length is None:
+                        print("未找到光缆长度信息")
+                        # 添加一些关键字搜索来帮助调试
+                        keywords = ['光缆', '光纤', '米', '长度']
+                        print("文本中包含的关键字:")
+                        for keyword in keywords:
+                            if keyword in filtered_text:
+                                print(f"  - '{keyword}' 在过滤后文本中找到")
+                            elif keyword in '\n'.join(full_text):
+                                print(f"  - '{keyword}' 在完整文本中找到")
+                            else:
+                                print(f"  - '{keyword}' 未找到")
+                    print("========================\n")
+                    
                     # 进行验算比较
                     if info['doc_maintenance_total'] is not None:
                         # 使用近似比较，因为浮点数计算可能有精度问题
@@ -317,11 +378,12 @@ def extract_info_from_word(file_path):
                 else:
                     print(f"未找到标记文本'{marker}'，跳过后续处理")
                     results.append({
-                        'code_part': code_part,
-                        'file_name': file_name,
-                        'extraction_status': '失败',
-                        'error': f'未找到关键标记文本: {marker}'
-                    })
+                            'code_part': code_part,
+                            'file_name': file_name,
+                            'fiber_length': None,
+                            'extraction_status': '失败',
+                            'error': f'未找到关键标记文本: {marker}'
+                        })
             else:
                 print("无法提取文档内容")
                 results.append({
@@ -335,11 +397,12 @@ def extract_info_from_word(file_path):
             print(f"处理文件 {file_path} 时出错: {e}")
             print(traceback.format_exc())
             results.append({
-                'code_part': code_part if 'code_part' in locals() else '未知',
-                'file_name': file_name,
-                'extraction_status': '失败',
-                'error': str(e)
-            })
+                            'code_part': code_part if 'code_part' in locals() else '未知',
+                            'file_name': file_name,
+                            'fiber_length': None,
+                            'extraction_status': '失败',
+                            'error': str(e)
+                        })
     else:
         print(f"无法从文件名 {file_name} 中提取代码部分")
         print(f"文件名格式: {file_name}")
@@ -500,6 +563,7 @@ def extract_info_from_zip(zip_path):
                                 'total_fees': 0.0,
                                 'doc_maintenance_total': None,
                                 'total_price': None,
+                                'fiber_length': None,
                                 'verification_passed': False,
                                 'file_name': file_name,
                                 'extraction_status': '成功'
@@ -598,6 +662,66 @@ def extract_info_from_zip(zip_path):
                             info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
                             print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                             
+                            # 提取光缆长度 - 更灵活的正则表达式
+                            # 尝试多种可能的光缆长度格式
+                            fiber_patterns = [
+                                re.compile(r'光缆\s*([\d.]+)\s*米'),  # 光缆 123 米
+                                re.compile(r'光缆([\d.]+)米'),         # 光缆123米
+                                re.compile(r'光缆长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆长度：123米
+                                re.compile(r'光缆长度\s*为\s*([\d.]+)\s*米'),  # 光缆长度为123米
+                                re.compile(r'光缆\s*长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆 长度：123米
+                                re.compile(r'光缆\s*约\s*([\d.]+)\s*米'),  # 光缆约123米
+                                re.compile(r'([\d.]+)\s*米\s*光缆'),  # 123米光缆
+                                # 添加更多可能的格式
+                                re.compile(r'光缆\s*总长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆总长度：123米
+                                re.compile(r'光缆\s*总长\s*[：:]\s*([\d.]+)\s*米'),    # 光缆总长：123米
+                                re.compile(r'光纤\s*([\d.]+)\s*米'),  # 光纤 123 米
+                                re.compile(r'光纤([\d.]+)米'),         # 光纤123米
+                                re.compile(r'光缆\s*铺设\s*([\d.]+)\s*米'),  # 光缆铺设 123 米
+                                re.compile(r'铺设\s*光缆\s*([\d.]+)\s*米')   # 铺设光缆 123 米
+                            ]
+                            
+                            # 首先在过滤后的文本中搜索
+                            print(f"\n=== 开始搜索光缆长度信息 ===")
+                            print(f"过滤后文本预览: {filtered_text[:200]}...")
+                            
+                            fiber_length = None
+                            for pattern in fiber_patterns:
+                                fiber_match = pattern.search(filtered_text)
+                                if fiber_match:
+                                    fiber_length_str = fiber_match.group(1)
+                                    fiber_length = float(fiber_length_str)
+                                    print(f"在过滤后文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
+                                    info['fiber_length'] = fiber_length
+                                    break
+                            
+                            # 如果在过滤后的文本中没有找到，尝试在完整的原始文本中搜索
+                            if fiber_length is None:
+                                print("在过滤后文本中未找到光缆长度信息，尝试在完整文本中搜索...")
+                                combined_text = '\n'.join(full_text)
+                                for pattern in fiber_patterns:
+                                    fiber_match = pattern.search(combined_text)
+                                    if fiber_match:
+                                        fiber_length_str = fiber_match.group(1)
+                                        fiber_length = float(fiber_length_str)
+                                        print(f"在完整文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
+                                        info['fiber_length'] = fiber_length
+                                        break
+                            
+                            if fiber_length is None:
+                                print("未找到光缆长度信息")
+                                # 添加一些关键字搜索来帮助调试
+                                keywords = ['光缆', '光纤', '米', '长度']
+                                print("文本中包含的关键字:")
+                                for keyword in keywords:
+                                    if keyword in filtered_text:
+                                        print(f"  - '{keyword}' 在过滤后文本中找到")
+                                    elif keyword in '\n'.join(full_text):
+                                        print(f"  - '{keyword}' 在完整文本中找到")
+                                    else:
+                                        print(f"  - '{keyword}' 未找到")
+                            print("========================\n")
+                            
                             # 进行验算比较
                             if info['doc_maintenance_total'] is not None:
                                 # 使用近似比较，因为浮点数计算可能有精度问题
@@ -645,6 +769,7 @@ def extract_info_from_zip(zip_path):
         # 添加错误信息到结果中，以便前端展示
         results.append({
             'error': str(e),
+            'fiber_length': None,
             'extraction_status': '失败',
             'file_name': os.path.basename(zip_path)
         })

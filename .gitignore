@@ -41,3 +41,6 @@ build/
 dist/
 *.egg
 *.egg-info/
+
+# 测试用例目录
+Test_case/

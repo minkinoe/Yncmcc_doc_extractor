@@ -44,3 +44,7 @@ dist/
 
 # 测试用例目录
 Test_case/
+
+# 测试文件
+test_*.py
+test_document.txt

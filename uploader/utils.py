@@ -158,36 +158,7 @@ def read_word_document(file_path):
     
     return full_text
 
-def filter_text_by_marker(full_text, marker="实施方案费用总体估算"):
-    """根据标记过滤文本，只保留标记之后的内容"""
-    if not full_text:
-        return None, False
-    
-    filtered_lines = []
-    marker_found = False
-    
-    # 合并所有文本行以提高匹配成功率
-    combined_text = '\n'.join(full_text)
-    if marker in combined_text:
-        # 从标记处分割文本
-        marker_index = combined_text.find(marker)
-        filtered_text_portion = combined_text[marker_index:]
-        filtered_lines = filtered_text_portion.split('\n')
-        marker_found = True
-    else:
-        # 备用方法：逐行检查
-        for line in full_text:
-            stripped_line = line.strip()
-            if marker_found or marker in stripped_line:
-                marker_found = True
-                filtered_lines.append(stripped_line)
-    
-    if marker_found:
-        print(f"已过滤文本，只保留'{marker}'之后的内容")
-        filtered_text = '\n'.join([line for line in filtered_lines if line])
-        return filtered_text, True
-    else:
-        return None, False
+
 
 def extract_price_info(text, price_type, patterns):
     """从文本中提取价格信息"""
@@ -328,8 +299,9 @@ def extract_info_from_word(file_path):
             print("开始读取Word文档内容...")
             full_text = read_word_document(file_path)
             
-            # 过滤文本，只保留"实施方案费用总体估算"之后的内容
-            filtered_text, marker_found = filter_text_by_marker(full_text)
+            # 不再过滤文本，直接使用完整的原始文本
+            filtered_text = '\n'.join(full_text)
+            marker_found = True
             
             if marker_found:
                 # 提取各类价格信息
@@ -478,8 +450,9 @@ def extract_info_from_zip(zip_path):
                 print("开始读取Word文档内容...")
                 full_text = read_word_document(file_path)
                 
-                # 过滤文本，只保留"实施方案费用总体估算"之后的内容
-                filtered_text, marker_found = filter_text_by_marker(full_text)
+                # 不再过滤文本，直接使用完整的原始文本
+                filtered_text = '\n'.join(full_text)
+                marker_found = True
                 
                 if marker_found:
                     # 提取各类价格信息

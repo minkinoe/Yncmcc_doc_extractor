@@ -45,6 +45,9 @@ dist/
 # 测试用例目录
 Test_case/
 
+# 调试和测试文件夹
+debug_and_tests/
+
 # 测试文件
 test_*.py
 test_document.txt

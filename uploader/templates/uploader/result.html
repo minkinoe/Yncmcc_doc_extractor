@@ -104,6 +104,62 @@
             color: #f44336;
             font-weight: bold;
             font-size: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .price-value:hover {
+            text-decoration: underline;
+        }
+        
+        .price-value::after {
+            content: '点击复制';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .price-value:hover::after {
+            opacity: 1;
+        }
+        
+        .fee-group {
+            grid-column: 1 / -1;
+            margin-top: 15px;
+            padding: 20px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .fee-group-title {
+            font-weight: bold;
+            color: #1976D2;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .fee-group-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .fee-group-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         .success {
@@ -217,28 +273,35 @@
                     {% if result.doc_maintenance_total %}
                     <div class="info-item">
                         <span class="info-label">维护费（含税）</span>
-                        <span class="price-value">{{ result.doc_maintenance_total|floatformat:4 }}元</span>
+                        <span class="price-value">{{ result.doc_maintenance_total|floatformat:2 }}元</span>
                     </div>
                     {% endif %}
-                    
-                    <div class="info-item">
-                        <span class="info-label">宽带维护费（含税）</span>
-                        <span class="price-value">{{ result.maintenance_fee|floatformat:4 }}元</span>
+                </div>
+                
+                <div class="fee-group">
+                    <div class="fee-group-title">费用明细（点击数值可复制）</div>
+                    <div class="fee-group-grid">
+                        <div class="info-item">
+                            <span class="info-label">宽带维护费（含税）</span>
+                            <span class="price-value" onclick="copyToClipboard(this)">{{ result.maintenance_fee|floatformat:2 }}元</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">宽带服务费（含税）</span>
+                            <span class="price-value" onclick="copyToClipboard(this)">{{ result.service_fee|floatformat:2 }}元</span>
+                        </div>
+                        
+                        <div class="info-item">
+                            <span class="info-label">终端费（含税）</span>
+                            <span class="price-value" onclick="copyToClipboard(this)">{{ result.terminal_fee|floatformat:2 }}元</span>
+                        </div>
                     </div>
-                    
-                    <div class="info-item">
-                        <span class="info-label">宽带服务费（含税）</span>
-                        <span class="price-value">{{ result.service_fee|floatformat:4 }}元</span>
-                    </div>
-                    
-                    <div class="info-item">
-                        <span class="info-label">终端费（含税）</span>
-                        <span class="price-value">{{ result.terminal_fee|floatformat:4 }}元</span>
-                    </div>
-                    
+                </div>
+                
+                <div class="info-grid">
                     <div class="info-item">
                         <span class="info-label">费用总和</span>
-                        <span class="price-value">{{ result.total_fees|floatformat:4 }}元</span>
+                        <span class="price-value" onclick="copyToClipboard(this)">{{ result.total_fees|floatformat:2 }}元</span>
                     </div>
                 </div>
                 
@@ -263,5 +326,37 @@
         
         <a href="{% url 'upload_file' %}" class="back-btn">返回上传页面</a>
     </div>
+    <script>
+        // 复制到剪贴板功能
+        function copyToClipboard(element) {
+            // 提取数字部分（去掉"元"字）
+            const textToCopy = element.textContent.replace('元', '');
+            
+            // 创建临时文本区域
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = textToCopy;
+            tempTextArea.style.position = 'absolute';
+            tempTextArea.style.left = '-9999px';
+            document.body.appendChild(tempTextArea);
+            
+            // 选择并复制文本
+            tempTextArea.select();
+            document.execCommand('copy');
+            
+            // 移除临时元素
+            document.body.removeChild(tempTextArea);
+            
+            // 显示复制成功提示
+            const originalText = element.textContent;
+            element.textContent = '已复制!';
+            element.style.color = '#4CAF50';
+            
+            // 恢复原文本
+            setTimeout(() => {
+                element.textContent = originalText;
+                element.style.color = '#f44336';
+            }, 1000);
+        }
+    </script>
 </body>
 </html>

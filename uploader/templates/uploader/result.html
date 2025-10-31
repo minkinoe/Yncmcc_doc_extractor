@@ -298,10 +298,17 @@
                 
                 <h2>文档信息</h2>
                 <div class="info-grid">
+                    {% if result.overall_total_price %}
+                    <div class="info-item">
+                        <span class="info-label">总体估算价格</span>
+                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.overall_total_price|floatformat:2 }}元</span>
+                    </div>
+                    {% endif %}
+                    
                     {% if result.total_price %}
                     <div class="info-item">
                         <span class="info-label">总估算价格</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.total_price }}元</span>
+                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.total_price|floatformat:2 }}元</span>
                     </div>
                     {% endif %}
                     
@@ -315,7 +322,7 @@
                     {% if result.fiber_length %}
                     <div class="info-item">
                         <span class="info-label">光缆长度</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.fiber_length }}米</span>
+                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.fiber_length|floatformat:0 }}米</span>
                     </div>
                     {% endif %}
                     

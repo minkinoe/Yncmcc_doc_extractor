@@ -180,6 +180,25 @@ def extract_maintenance_fee(text):
     ]
     return extract_price_info(text, "维护费（含税）", patterns)
 
+def extract_overall_total_price(text):
+    """提取总体估算价格"""
+    patterns = [
+        re.compile(r'总体估算[：:]*\s*([\d,]+\.?\d*)元'),
+        re.compile(r'总体估算价格[：:]*\s*([\d,]+\.?\d*)元'),
+        re.compile(r'总体估算\s*([\d,]+\.?\d*)元'),
+        re.compile(r'项目总体合计（含税）[：:]*\s*([\d,]+\.?\d*)元'),
+        re.compile(r'总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元'),
+        re.compile(r'和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元')
+    ]
+    for pattern in patterns:
+        match = pattern.search(text)
+        if match:
+            overall_total_price_str = match.group(1)
+            print(f"总体估算价格: {overall_total_price_str}元")
+            return float(overall_total_price_str.replace(',', ''))
+    print("未在文本中找到明确的总体估算价格")
+    return None
+
 def extract_total_price(text):
     """提取总估算价格"""
     patterns = [
@@ -192,7 +211,7 @@ def extract_total_price(text):
         if match:
             total_price_str = match.group(1)
             print(f"总估算价格: {total_price_str}元")
-            return total_price_str
+            return float(total_price_str.replace(',', ''))
     print("未在文本中找到明确的总估算价格")
     return None
 
@@ -255,7 +274,8 @@ def extract_fiber_length(text):
             fiber_length_str = fiber_match.group(1)
             fiber_length = float(fiber_length_str)
             print(f"在过滤后文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
-            return fiber_length
+            # 返回整数以符合显示要求
+            return int(fiber_length)
     
     return fiber_length
 
@@ -312,6 +332,7 @@ def extract_info_from_word(file_path):
                     'terminal_fee': 0.0,
                     'total_fees': 0.0,
                     'doc_maintenance_total': None,
+                    'overall_total_price': None,
                     'total_price': None,
                     'fiber_length': None,
                     'verification_passed': False,
@@ -324,6 +345,9 @@ def extract_info_from_word(file_path):
                 
                 # 提取维护费（含税）合计
                 info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
+                
+                # 提取总体估算价格
+                info['overall_total_price'] = extract_overall_total_price(filtered_text)
                 
                 # 提取总估算价格
                 info['total_price'] = extract_total_price(filtered_text)
@@ -463,6 +487,7 @@ def extract_info_from_zip(zip_path):
                         'terminal_fee': 0.0,
                         'total_fees': 0.0,
                         'doc_maintenance_total': None,
+                        'overall_total_price': None,
                         'total_price': None,
                         'fiber_length': None,
                         'verification_passed': False,
@@ -475,6 +500,9 @@ def extract_info_from_zip(zip_path):
                     
                     # 提取维护费（含税）合计
                     info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
+                    
+                    # 提取总体估算价格
+                    info['overall_total_price'] = extract_overall_total_price(filtered_text)
                     
                     # 提取总估算价格
                     info['total_price'] = extract_total_price(filtered_text)

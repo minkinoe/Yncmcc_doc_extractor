@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1200px; /* 增大宽度以容纳侧边栏和详情 */
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
@@ -51,6 +51,8 @@
             background-color: #f9f9f9;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             animation: slideIn 0.3s ease-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            width: 100%;
         }
         
         @keyframes slideIn {
@@ -260,6 +262,49 @@
             margin-bottom: 20px;
             border-radius: 4px;
         }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            background: #ffffff;
+            border: 1px solid #e8eaf0;
+            padding: 14px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(16,24,40,0.03);
+        }
+
+        .code-btn {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .code-btn:hover {
+            background-color: #f0f7ff;
+        }
+
+        .active-code {
+            background: linear-gradient(90deg,#e8f3ff,#eef9f1);
+            border-left: 3px solid #1976D2;
+            color: #0b62a8;
+        }
+
+        /* 主显示区样式微调 */
+        .results-area {
+            display: block;
+        }
+
+        /* 响应式：窄屏时侧边栏放到上方 */
+        @media (max-width: 900px) {
+            body { max-width: 100%; padding: 12px; }
+            .results-wrapper { flex-direction: column; }
+            .sidebar { width: 100% !important; }
+        }
         
         .code-label {
             font-weight: bold;
@@ -286,98 +331,124 @@
 <body>
     <div class="container">
         <h1>提取结果</h1>
-        
-        {% if results %}
-            {% for result in results %}
-            <div class="result-card">
-                <!-- 单号单独显示 -->
-                <div class="code-section">
-                    <div class="code-label">单号</div>
-                    <div class="code-value clickable-value" onclick="copyToClipboard(this)">{{ result.code_part }}</div>
-                </div>
-                
-                <h2>文档信息</h2>
-                <div class="info-grid">
-                    {% if result.overall_total_price %}
-                    <div class="info-item">
-                        <span class="info-label">总体估算价格</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.overall_total_price|floatformat:2 }}元</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if result.total_price %}
-                    <div class="info-item">
-                        <span class="info-label">总估算价格</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.total_price|floatformat:2 }}元</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if result.doc_maintenance_total %}
-                    <div class="info-item">
-                        <span class="info-label">维护费（含税）</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.doc_maintenance_total|floatformat:2 }}元</span>
-                    </div>
-                    {% endif %}
-                    
-                    {% if result.fiber_length %}
-                    <div class="info-item">
-                        <span class="info-label">光缆长度</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.fiber_length|floatformat:0 }}米</span>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="info-item">
-                        <span class="info-label">文件名</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.file_name }}</span>
-                    </div>
-                </div>
-                
-                <div class="fee-group">
-                    <div class="fee-group-title">费用明细（点击数值可复制）</div>
-                    <div class="fee-group-grid">
-                        <div class="info-item">
-                            <span class="info-label">宽带维护费（含税）</span>
-                            <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.maintenance_fee|floatformat:2 }}元</span>
+
+        <div class="results-wrapper" style="display:flex;gap:20px;align-items:flex-start;">
+            <aside class="sidebar" style="width:260px;">
+                <div style="font-weight:700;margin-bottom:10px;">单号列表</div>
+                <ul id="code-list" style="list-style:none;padding:0;margin:0;">
+                    <li><button class="code-btn active-code" data-code="__all__">全部 ({{ total_processed }})</button></li>
+                    {% for code in unique_codes %}
+                    <li style="margin-top:6px;"><button class="code-btn" data-code="{{ code }}">{{ code }}</button></li>
+                    {% endfor %}
+                </ul>
+                <div style="margin-top:12px;color:#666;font-size:13px">点击单号以仅显示对应条目</div>
+            </aside>
+
+            <main class="results-area" style="flex:1;">
+                {% if all_results %}
+                    {% for result in all_results %}
+                    <div class="result-card" data-code="{{ result.code_part|default:result.file_name|escape }}">
+                        {% if result.error %}
+                        <div style="border-left:4px solid #f44336;padding-left:10px;">
+                            <h2>处理失败</h2>
+                            <div class="info-item" style="background:#fff3f2;padding:10px;border-radius:6px;">
+                                <div class="info-label">文件</div>
+                                <div>{{ result.file_name }}</div>
+                                <div class="info-label" style="margin-top:8px;color:#c62828;">错误信息</div>
+                                <div>{{ result.error }}</div>
+                            </div>
                         </div>
-                        
-                        <div class="info-item">
-                            <span class="info-label">宽带服务费（含税）</span>
-                            <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.service_fee|floatformat:2 }}元</span>
+                        {% else %}
+                        <div class="code-section">
+                            <div class="code-label">单号</div>
+                            <div class="code-value clickable-value" onclick="copyToClipboard(this)">{{ result.code_part }}</div>
                         </div>
-                        
-                        <div class="info-item">
-                            <span class="info-label">终端费（含税）</span>
-                            <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.terminal_fee|floatformat:2 }}元</span>
+
+                        <h2>文档信息</h2>
+                        <div class="info-grid">
+                            {% if result.overall_total_price %}
+                            <div class="info-item">
+                                <span class="info-label">总体估算价格</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.overall_total_price|floatformat:2 }}元</span>
+                            </div>
+                            {% endif %}
+
+                            {% if result.total_price %}
+                            <div class="info-item">
+                                <span class="info-label">总估算价格</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.total_price|floatformat:2 }}元</span>
+                            </div>
+                            {% endif %}
+
+                            {% if result.doc_maintenance_total %}
+                            <div class="info-item">
+                                <span class="info-label">维护费（含税）</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.doc_maintenance_total|floatformat:2 }}元</span>
+                            </div>
+                            {% endif %}
+
+                            {% if result.fiber_length %}
+                            <div class="info-item">
+                                <span class="info-label">光缆长度</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.fiber_length|floatformat:0 }}米</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="info-item">
+                                <span class="info-label">文件名</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.file_name }}</span>
+                            </div>
                         </div>
+
+                        <div class="fee-group">
+                            <div class="fee-group-title">费用明细（点击数值可复制）</div>
+                            <div class="fee-group-grid">
+                                <div class="info-item">
+                                    <span class="info-label">宽带维护费（含税）</span>
+                                    <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.maintenance_fee|floatformat:2 }}元</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">宽带服务费（含税）</span>
+                                    <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.service_fee|floatformat:2 }}元</span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">终端费（含税）</span>
+                                    <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.terminal_fee|floatformat:2 }}元</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">费用总和</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.total_fees|floatformat:2 }}元</span>
+                            </div>
+                        </div>
+
+                        {% if result.doc_maintenance_total is not None %}
+                        <div class="info-item verification-result {% if result.verification_passed %}success-bg{% else %}failure-bg{% endif %}">
+                            <span class="{% if result.verification_passed %}success-icon{% else %}failure-icon{% endif %}">
+                                {% if result.verification_passed %}✓{% else %}✗{% endif %}
+                            </span>
+                            <span>
+                                {% if result.verification_passed %}验算通过：计算总和与文档中维护费合计一致{% else %}验算失败：计算总和与文档中维护费合计不一致{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                        {% endif %}
                     </div>
-                </div>
-                
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">费用总和</span>
-                        <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.total_fees|floatformat:2 }}元</span>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-results">
+                        <div class="no-results-icon">📄</div>
+                        <p>没有找到可提取的Word文档或无法提取有效信息</p>
                     </div>
-                </div>
-                
-                {% if result.doc_maintenance_total is not None %}
-                <div class="info-item verification-result {% if result.verification_passed %}success-bg{% else %}failure-bg{% endif %}">
-                    <span class="{% if result.verification_passed %}success-icon{% else %}failure-icon{% endif %}">
-                        {% if result.verification_passed %}✓{% else %}✗{% endif %}
-                    </span>
-                    <span>
-                        {% if result.verification_passed %}验算通过：计算总和与文档中维护费合计一致{% else %}验算失败：计算总和与文档中维护费合计不一致{% endif %}
-                    </span>
-                </div>
                 {% endif %}
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-results">
-                <div class="no-results-icon">📄</div>
-                <p>没有找到可提取的Word文档或无法提取有效信息</p>
-            </div>
-        {% endif %}
-        
+            </main>
+        </div>
+
         <a href="{% url 'upload_file' %}" class="back-btn">返回上传页面</a>
     </div>
     <script>
@@ -424,6 +495,43 @@
                 }
             }, 1000);
         }
+    </script>
+    <script>
+        // 单号筛选逻辑：点击左侧单号按钮只显示对应data-code的卡片
+        (function(){
+            const codeButtons = document.querySelectorAll('.code-btn');
+            const cards = Array.from(document.querySelectorAll('.result-card'));
+
+            function setActiveButton(btn){
+                codeButtons.forEach(b=>b.classList.remove('active-code'));
+                if(btn) btn.classList.add('active-code');
+            }
+
+            function showForCode(code){
+                if(code === '__all__'){
+                    cards.forEach(c=>c.style.display='block');
+                    return;
+                }
+                cards.forEach(c=>{
+                    const ccode = c.getAttribute('data-code') || '';
+                    if(ccode === code) c.style.display='block'; else c.style.display='none';
+                });
+            }
+
+            codeButtons.forEach(btn=>{
+                btn.addEventListener('click', ()=>{
+                    const code = btn.getAttribute('data-code');
+                    setActiveButton(btn);
+                    showForCode(code);
+                });
+            });
+
+            // 默认选中第一个（全部）
+            if(codeButtons.length>0){
+                setActiveButton(codeButtons[0]);
+                showForCode(codeButtons[0].getAttribute('data-code'));
+            }
+        })();
     </script>
 </body>
 </html>

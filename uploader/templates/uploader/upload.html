@@ -117,12 +117,13 @@
             <div id="drop-area" class="drop-area">
                 <div class="drop-area-icon">📁</div>
                 <p>将ZIP或Word文件拖放到此处，或点击下方按钮选择文件</p>
-                <input type="file" id="file_input" name="word_file" accept=".zip,.doc,.docx" class="file-input" required>
+                <!-- 支持多文件上传：name="files" multiple -->
+                <input type="file" id="file_input" name="files" accept=".zip,.doc,.docx" class="file-input" multiple>
                 <button type="button" class="browse-btn" onclick="document.getElementById('file_input').click()">
                     选择文件
                 </button>
                 <div id="file-name-display" class="file-name-display">
-                    <span id="selected-file-name">未选择文件</span>
+                    <ul id="selected-file-list" style="list-style:none;padding:0;margin:0">未选择文件</ul>
                 </div>
             </div>
             <button type="submit" id="submit-btn" class="submit-btn" disabled>
@@ -184,48 +185,46 @@
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            
+
             if (files.length > 0) {
-                const file = files[0];
-                // 检查文件类型
-                if (['.zip', '.doc', '.docx'].some(ext => file.name.toLowerCase().endsWith(ext))) {
-                    // 根据文件类型设置正确的input name属性
-                    if (file.name.toLowerCase().endsWith('.zip')) {
-                        fileInput.name = 'zip_file';
-                    } else {
-                        fileInput.name = 'word_file';
+                // 过滤支持的文件类型并将其添加到 input
+                const dataTransfer = new DataTransfer();
+                const selectedNames = [];
+                for (let i = 0; i < files.length; i++) {
+                    const f = files[i];
+                    if (['.zip', '.doc', '.docx'].some(ext => f.name.toLowerCase().endsWith(ext))) {
+                        dataTransfer.items.add(f);
+                        selectedNames.push(f.name);
                     }
-                    
-                    // 创建一个新的FileList对象并设置文件
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    fileInput.files = dataTransfer.files;
-                    
-                    // 更新UI
-                    updateFileDisplay(file.name);
-                } else {
-                    alert('请选择ZIP或Word格式(.doc, .docx)的文件！');
                 }
+
+                if (dataTransfer.files.length === 0) {
+                    alert('请选择ZIP或Word格式(.doc, .docx)的文件！');
+                    return;
+                }
+
+                fileInput.files = dataTransfer.files;
+                updateFileListDisplay(selectedNames);
             }
         }
         
-        // 处理文件选择
+        // 处理文件选择（支持多文件）
         fileInput.addEventListener('change', function() {
             if (this.files.length > 0) {
-                const file = this.files[0];
-                // 根据文件类型设置正确的input name属性
-                if (file.name.toLowerCase().endsWith('.zip')) {
-                    this.name = 'zip_file';
-                } else {
-                    this.name = 'word_file';
-                }
-                updateFileDisplay(file.name);
+                const names = Array.from(this.files).map(f => f.name);
+                updateFileListDisplay(names);
             }
         });
         
-        // 更新文件显示
-        function updateFileDisplay(fileName) {
-            selectedFileName.textContent = fileName;
+        // 更新文件显示（多文件）
+        function updateFileListDisplay(names) {
+            const list = document.getElementById('selected-file-list');
+            list.innerHTML = '';
+            names.forEach(n => {
+                const li = document.createElement('li');
+                li.textContent = n;
+                list.appendChild(li);
+            });
             fileNameDisplay.classList.add('show');
             submitBtn.disabled = false;
         }

@@ -31,8 +31,43 @@ def extract_text_with_win32com(file_path, max_retries=3):
             import pythoncom
             pythoncom.CoInitialize()
             
+            # 使用 win32com 自动化 Word。某些情况下 win32com 的 gen_py 缓存会损坏，
+            # 导致类似 "module 'win32com.gen_py.xxx' has no attribute 'CLSIDToPackageMap'" 的错误。
+            # 为提高鲁棒性，按以下顺序尝试：
+            # 1) 优先使用 DispatchEx（更适合多线程，且通常能避免 gen_py 的一些问题）
+            # 2) 若失败，尝试使用 gencache.EnsureDispatch（可能会触发生成/修复 gen_py）
+            # 3) 若 EnsureDispatch 失败，尝试 gencache.Rebuild 再 EnsureDispatch
             import win32com.client
-            word = win32com.client.Dispatch("Word.Application")
+            try:
+                # DispatchEx 在多线程或并发环境下更安全
+                word = win32com.client.DispatchEx("Word.Application")
+            except Exception as de:
+                # DispatchEx 失败时，尝试通过 gencache 修复生成的缓存并使用 Dispatch
+                try:
+                    from win32com.client import gencache
+                    try:
+                        # EnsureDispatch 有时会修复缺失的 gen_py 模块
+                        gencache.EnsureDispatch("Word.Application")
+                    except Exception:
+                        # 如果 EnsureDispatch 也失败，尝试 Rebuild 再 EnsureDispatch
+                        try:
+                            gencache.Rebuild()
+                            gencache.EnsureDispatch("Word.Application")
+                        except Exception:
+                            # 如果仍然失败，让外层捕获并记录错误
+                            raise
+                    # 最终以普通 Dispatch 取得对象
+                    word = win32com.client.Dispatch("Word.Application")
+                except Exception as e_gencache:
+                    # 最后尝试使用动态派生（dynamic.Dispatch）以绕开 gen_py 缓存问题
+                    try:
+                        from win32com.client import dynamic
+                        word = dynamic.Dispatch("Word.Application")
+                    except Exception as e_dynamic:
+                        # 将原始错误与 gencache / dynamic 错误都记录并抛出，以便外层捕获
+                        raise RuntimeError(f"win32com Dispatch 失败: DispatchEx error={de}; gencache error={e_gencache}; dynamic error={e_dynamic}")
+
+            # 设置可见性和警告行为
             word.Visible = False
             word.DisplayAlerts = False
             

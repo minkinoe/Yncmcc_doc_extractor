@@ -9,70 +9,97 @@ from .utils import extract_info_from_zip, extract_info_from_word
 logger = logging.getLogger(__name__)
 
 def upload_file(request):
-    """文件上传页面"""
-    if request.method == 'POST' and (request.FILES.get('zip_file') or request.FILES.get('word_file')):
-        # 检查是ZIP文件还是Word文件
-        file = request.FILES.get('zip_file') or request.FILES.get('word_file')
-        is_zip = file.name.lower().endswith('.zip')
-        is_word = file.name.lower().endswith('.doc') or file.name.lower().endswith('.docx')
-        
-        # 验证文件类型
-        if not (is_zip or is_word):
-            messages.error(request, '请上传ZIP格式或Word格式(.doc, .docx)的文件！')
+    """文件上传页面（支持多文件上传）"""
+    if request.method == 'POST':
+        # 支持 name='files' 的多文件上传；同时兼容旧的 zip_file/word_file 单文件字段
+        uploaded_files = request.FILES.getlist('files') or []
+        # 兼容：如果客户端仍使用旧字段，则也加入
+        if not uploaded_files:
+            if request.FILES.get('zip_file'):
+                uploaded_files = [request.FILES.get('zip_file')]
+            elif request.FILES.get('word_file'):
+                uploaded_files = [request.FILES.get('word_file')]
+
+        if not uploaded_files:
+            messages.error(request, '请上传至少一个ZIP或Word文件(.zip, .doc, .docx)！')
             return render(request, 'uploader/upload.html')
-        
-        try:
-            # 保存上传的文件
-            os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
-            file_path = os.path.join(settings.MEDIA_ROOT, file.name)
-            
-            with open(file_path, 'wb+') as destination:
-                try:
+
+        all_results = []
+        os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+
+        for file in uploaded_files:
+            # 验证文件类型
+            name_lower = file.name.lower()
+            is_zip = name_lower.endswith('.zip')
+            is_word = name_lower.endswith('.doc') or name_lower.endswith('.docx')
+
+            if not (is_zip or is_word):
+                logger.warning(f"跳过不支持的文件类型: {file.name}")
+                all_results.append({
+                    'file_name': file.name,
+                    'extraction_status': '失败',
+                    'error': '不支持的文件类型'
+                })
+                continue
+
+            # 将上传文件保存到临时文件
+            try:
+                # 使用唯一文件名以避免冲突
+                import uuid
+                tmp_name = f"upload_{uuid.uuid4().hex}_{file.name}"
+                file_path = os.path.join(settings.MEDIA_ROOT, tmp_name)
+
+                with open(file_path, 'wb+') as destination:
                     for chunk in file.chunks():
                         destination.write(chunk)
-                except Exception as e:
-                    logger.error(f"文件保存失败: {str(e)}")
-                    messages.error(request, '文件上传保存失败，请重试！')
-                    return render(request, 'uploader/upload.html')
-            
-            # 根据文件类型选择不同的处理函数
-            logger.info(f"开始处理文件: {file.name}")
-            if is_zip:
-                results = extract_info_from_zip(file_path)
-            else:
-                results = extract_info_from_word(file_path)
-            
-            # 检查结果是否为空
-            if not results:
-                messages.warning(request, '未能从上传的文件中提取到任何有效信息！')
-            else:
-                # 统计成功和失败的数量
-                success_count = sum(1 for r in results if r.get('extraction_status') == '成功' or 'extraction_status' not in r)
-                error_count = len(results) - success_count
-                if error_count > 0:
-                    messages.warning(request, f'部分文件处理失败，成功: {success_count}, 失败: {error_count}')
+
+                logger.info(f"开始处理文件: {file.name}")
+                if is_zip:
+                    results = extract_info_from_zip(file_path)
                 else:
-                    messages.success(request, f'成功处理 {success_count} 个文档！')
-            
-            # 将结果存储在session中以便在结果页面显示
-            request.session['extraction_results'] = results
-            
-        except Exception as e:
-            logger.error(f"文件处理过程中出错: {str(e)}")
-            messages.error(request, f'文件处理失败: {str(e)}')
-            results = []
-            request.session['extraction_results'] = results
-            
-        finally:
-            # 确保临时文件被删除
-            if 'file_path' in locals() and os.path.exists(file_path):
+                    results = extract_info_from_word(file_path)
+
+                # results 可能是列表（zip 情况），也可能是单个文件的列表，统一合并
+                if results:
+                    all_results.extend(results)
+                else:
+                    all_results.append({
+                        'file_name': file.name,
+                        'extraction_status': '失败',
+                        'error': '未提取到任何信息'
+                    })
+
+            except Exception as e:
+                logger.error(f"处理文件 {file.name} 时出错: {str(e)}")
+                all_results.append({
+                    'file_name': file.name,
+                    'extraction_status': '失败',
+                    'error': str(e)
+                })
+
+            finally:
+                # 尝试删除临时文件
                 try:
-                    os.remove(file_path)
+                    if 'file_path' in locals() and os.path.exists(file_path):
+                        os.remove(file_path)
                 except Exception as e:
-                    logger.warning(f"无法删除临时文件: {str(e)}")
-            
+                    logger.warning(f"无法删除临时文件 {file_path}: {str(e)}")
+
+        # 检查总体结果并设置消息
+        if not all_results:
+            messages.warning(request, '未能从上传的文件中提取到任何有效信息！')
+        else:
+            success_count = sum(1 for r in all_results if r.get('extraction_status') == '成功' or 'extraction_status' not in r)
+            error_count = len(all_results) - success_count
+            if error_count > 0:
+                messages.warning(request, f'部分文件处理失败，成功: {success_count}, 失败: {error_count}')
+            else:
+                messages.success(request, f'成功处理 {success_count} 个文档！')
+
+        # 存储在 session 供结果页展示
+        request.session['extraction_results'] = all_results
         return redirect('show_result')
-    
+
     return render(request, 'uploader/upload.html')
 
 def show_result(request):

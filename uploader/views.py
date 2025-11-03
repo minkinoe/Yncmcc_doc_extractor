@@ -1,5 +1,6 @@
 import os
 import logging
+import re
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
@@ -48,6 +49,8 @@ def upload_file(request):
                 import uuid
                 tmp_name = f"upload_{uuid.uuid4().hex}_{file.name}"
                 file_path = os.path.join(settings.MEDIA_ROOT, tmp_name)
+                # 保存原始文件名，供提取函数使用
+                original_name = file.name
 
                 with open(file_path, 'wb+') as destination:
                     for chunk in file.chunks():
@@ -55,9 +58,9 @@ def upload_file(request):
 
                 logger.info(f"开始处理文件: {file.name}")
                 if is_zip:
-                    results = extract_info_from_zip(file_path)
+                    results = extract_info_from_zip(file_path, original_name)
                 else:
-                    results = extract_info_from_word(file_path)
+                    results = extract_info_from_word(file_path, original_name)
 
                 # results 可能是列表（zip 情况），也可能是单个文件的列表，统一合并
                 if results:
@@ -128,5 +131,46 @@ def show_result(request):
         'total_error': len(error_results),
         'total_processed': len(results)
     }
+    # 同时提供一个按单号分组的单号列表（包含成功与失败），供前端侧边栏展示
+    all_results = success_results + error_results
+
+    def _clean_order_code(name: str) -> str:
+        """从文件名或 code_part 中提取干净的单号。
+
+        优先匹配以 EOSC_ 开头的片段（例如 EOSC_4712510225808891_KC）。
+        否则去掉类似 upload_<hex>_ 的前缀并移除扩展名，作为回退。
+        """
+        if not name:
+            return '未知'
+
+        # 去除扩展名
+        base = os.path.splitext(name)[0]
+
+        # 优先查找 EOSC_ 开头的单号片段
+        m = re.search(r'(EOSC_[A-Za-z0-9_\-]+)', base)
+        if m:
+            return m.group(1)
+
+        # 回退：去掉 upload_<hex>_ 前缀（如果存在）
+        base2 = re.sub(r'^upload_[0-9a-fA-F]+_', '', base)
+        return base2 or base
+
+    unique_codes = []
+    seen = set()
+    for r in all_results:
+        raw = r.get('code_part') or r.get('file_name') or '未知'
+        code = _clean_order_code(raw)
+        # 在每个结果中保存清洗后的显示单号，模板可以使用它来显示更友好的单号
+        try:
+            r['display_code'] = code
+        except Exception:
+            # 保持稳健：如果 r 不是可变映射，忽略
+            pass
+        if code not in seen:
+            unique_codes.append(code)
+            seen.add(code)
+
+    context['all_results'] = all_results
+    context['unique_codes'] = unique_codes
     
     return render(request, 'uploader/result.html', context)

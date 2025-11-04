@@ -457,8 +457,8 @@ def extract_info_from_zip(zip_path, original_name=None):
     
     # 从ZIP文件名提取单号，优先使用原始文件名
     zip_file_name = original_name or os.path.basename(zip_path)
-    # 使用正则表达式提取单号部分 (例如从 EOSC_4712508269337893_KC... 中提取 EOSC_4712508269337893)
-    zip_code_match = re.match(r'([A-Za-z0-9_]+)', zip_file_name)
+    # 使用更精确的正则表达式提取EOSC_开头的单号 (例如从 EOSC_4712508269337893_KC... 中提取 EOSC_4712508269337893)
+    zip_code_match = re.search(r'(EOSC_[A-Za-z0-9_\-]+)(?:[^A-Za-z0-9_\-]|$)', zip_file_name)
     zip_code_part = zip_code_match.group(1) if zip_code_match else None
     if zip_code_part:
         print(f"从ZIP文件名提取到单号: {zip_code_part}")
@@ -500,14 +500,19 @@ def extract_info_from_zip(zip_path, original_name=None):
             file_name = os.path.basename(file_path)
             print(f"文件名: {file_name}")
             
-            # 优先使用来自原始ZIP文件名的单号，或从Word文档文件名中提取
-            match = re.search(r'(EOSC_[A-Za-z0-9_\-]+)(?:[^A-Za-z0-9_\-]|$)', file_name)
-            if match:
-                code_part = match.group(1)
-                print(f"从文件名提取到单号: {code_part}")
+            # 优先使用来自原始ZIP文件名的单号，如果ZIP单号存在则直接使用，不再从Word文件名提取
+            if zip_code_part:
+                code_part = zip_code_part
+                print(f"使用ZIP文件名的单号: {code_part}")
             else:
-                print(f"无法从文件名 {file_name} 中提取单号")
-                continue
+                # 如果ZIP单号不存在，再尝试从Word文档文件名中提取
+                match = re.search(r'(EOSC_[A-Za-z0-9_\-]+)(?:[^A-Za-z0-9_\-]|$)', file_name)
+                if match:
+                    code_part = match.group(1)
+                    print(f"从Word文件名提取到单号: {code_part}")
+                else:
+                    print(f"无法从文件名 {file_name} 中提取单号")
+                    continue
                 
             # 读取Word文档内容
             try:

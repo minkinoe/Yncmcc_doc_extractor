@@ -94,6 +94,24 @@
         .file-name-display.show {
             display: block;
         }
+        .form-group {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
         .browse-btn {
             background-color: #2196F3;
             color: white;
@@ -111,6 +129,9 @@
 </head>
 <body>
     <div class="container">
+        <div style="text-align: right; margin-bottom: 15px;">
+            <a href="{% url 'file_history' %}" style="color: #2196F3; text-decoration: none; font-size: 16px;">查看上传历史记录</a>
+        </div>
         <h1>Word文档内容提取工具</h1>
         <form id="upload-form" class="upload-form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -125,6 +146,10 @@
                 <div id="file-name-display" class="file-name-display">
                     <ul id="selected-file-list" style="list-style:none;padding:0;margin:0">未选择文件</ul>
                 </div>
+            </div>
+            <div class="form-group">
+                <label for="expected_order_code">预期单号 (可选)</label>
+                <input type="text" class="form-control" id="expected_order_code" name="expected_order_code" placeholder="输入预期的单号，用于验证">
             </div>
             <button type="submit" id="submit-btn" class="submit-btn" disabled>
                 上传并处理

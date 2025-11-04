@@ -278,8 +278,8 @@ def extract_terminal_fee(text):
     ]
     return extract_price_info(text, "终端费（含税）", patterns)
 
-def extract_fiber_length(text):
-    """提取光缆长度 - 更灵活的正则表达式"""
+def extract_fiber_info(text):
+    """提取光缆信息 - 支持多条光缆记录，返回JSON格式数据"""
     # 尝试多种可能的光缆长度格式
     fiber_patterns = [
         re.compile(r'光缆\s*([\d.]+)\s*米'),  # 光缆 123 米
@@ -299,20 +299,52 @@ def extract_fiber_length(text):
     ]
     
     # 首先在过滤后的文本中搜索
-    print(f"\n=== 开始搜索光缆长度信息 ===")
+    print(f"\n=== 开始搜索光缆信息 ===")
     print(f"过滤后文本预览: {text[:200]}...")
     
-    fiber_length = None
-    for pattern in fiber_patterns:
-        fiber_match = pattern.search(text)
-        if fiber_match:
-            fiber_length_str = fiber_match.group(1)
-            fiber_length = float(fiber_length_str)
-            print(f"在过滤后文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
-            # 返回整数以符合显示要求
-            return int(fiber_length)
+    fiber_info = []
+    matched_positions = set()  # 用于记录已匹配的位置，避免重复
     
-    return fiber_length
+    for pattern in fiber_patterns:
+        # 使用finditer找到所有匹配
+        for match in pattern.finditer(text):
+            start_pos = match.start()
+            # 检查是否在已匹配的位置附近
+            if not any(abs(start_pos - pos) < 10 for pos in matched_positions):
+                matched_positions.add(start_pos)
+                fiber_length_str = match.group(1)
+                fiber_length = float(fiber_length_str)
+                print(f"在过滤后文本中找到光缆长度: {fiber_length}米 (使用模式: {pattern.pattern})")
+                
+                # 尝试提取描述信息
+                context_start = max(0, start_pos - 50)
+                context_end = min(len(text), start_pos + 50)
+                context = text[context_start:context_end]
+                description = "光缆"
+                
+                # 尝试从上下文提取描述
+                description_patterns = [
+                    re.compile(r'(\w+)\s*光缆'),
+                    re.compile(r'光缆\s*(\w+)')
+                ]
+                for desc_pattern in description_patterns:
+                    desc_match = desc_pattern.search(context)
+                    if desc_match and desc_match.group(1):
+                        description = desc_match.group(1) + "光缆"
+                        break
+                
+                fiber_info.append({
+                    "length": int(fiber_length),
+                    "description": description,
+                    "unit": "米"
+                })
+    
+    # 如果没有找到，返回空列表
+    if not fiber_info:
+        print("未找到光缆信息")
+        return []
+    
+    return fiber_info
 
 def verify_calculation(info):
     """进行验算比较"""
@@ -351,8 +383,8 @@ def extract_info_from_word(file_path, original_name=None):
     # 提取文件名中的英文数字代码部分
     match = re.match(r'([A-Za-z0-9_]+)', file_name)
     if match:
-        code_part = match.group(1)
-        print(f"提取到代码部分: {code_part}")
+        order_code = match.group(1)
+        print(f"从文件名 {file_name} 中提取到单号: {order_code}")
         
         # 读取Word文档内容
         try:
@@ -364,66 +396,68 @@ def extract_info_from_word(file_path, original_name=None):
             marker_found = True
             
             if marker_found:
-                # 提取各类价格信息
-                info = {
-                    'code_part': code_part,
-                    'maintenance_fee': 0.0,
-                    'service_fee': 0.0,
-                    'terminal_fee': 0.0,
-                    'total_fees': 0.0,
-                    'doc_maintenance_total': None,
-                    'overall_total_price': None,
-                    'total_price': None,
-                    'fiber_length': None,
-                    'verification_passed': False,
-                    'file_name': file_name,
-                    'extraction_status': '成功'
-                }
-                
-                print(f"\n=== 提取到的价格信息 ===")
-                print(f"单号: {code_part}")
-                
-                # 提取维护费（含税）合计
-                info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
-                
-                # 提取总体估算价格
-                info['overall_total_price'] = extract_overall_total_price(filtered_text)
-                
-                # 提取总估算价格
-                info['total_price'] = extract_total_price(filtered_text)
-                
-                # 提取宽带维护费价格
-                info['maintenance_fee'] = extract_broadband_maintenance_fee(filtered_text)
-                
-                # 提取宽带服务费价格
-                info['service_fee'] = extract_broadband_service_fee(filtered_text)
-                
-                # 提取终端费价格
-                info['terminal_fee'] = extract_terminal_fee(filtered_text)
-                
-                # 计算费用总和
-                info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
-                print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
-                
-                # 提取光缆长度
-                info['fiber_length'] = extract_fiber_length(filtered_text)
-                
-                if info['fiber_length'] is None:
-                    print("未找到光缆长度信息")
-                    debug_keyword_search(filtered_text)
-                print("========================\n")
-                
-                # 进行验算比较
-                info['verification_passed'] = verify_calculation(info)
-                
-                print(f"====================\n")
-                results.append(info)
+                        # 提取各类价格信息
+                        info = {
+                            'order_code': order_code,
+                            'maintenance_fee': 0.0,
+                            'service_fee': 0.0,
+                            'terminal_fee': 0.0,
+                            'total_fees': 0.0,
+                            'doc_maintenance_total': None,
+                            'overall_total_price': None,
+                            'total_price': None,
+                            'fiber_info': [],
+                            'document_content': filtered_text,
+                            'verification_passed': False,
+                            'file_name': file_name,
+                            'extraction_status': '成功'
+                        }
+                        
+                        print(f"\n=== 提取到的价格信息 ===")
+                        print(f"单号: {order_code}")
+                        
+                        # 提取维护费（含税）合计
+                        info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
+                        
+                        # 提取总体估算价格
+                        info['overall_total_price'] = extract_overall_total_price(filtered_text)
+                        
+                        # 提取总估算价格
+                        info['total_price'] = extract_total_price(filtered_text)
+                        
+                        # 提取宽带维护费价格
+                        info['maintenance_fee'] = extract_broadband_maintenance_fee(filtered_text)
+                        
+                        # 提取宽带服务费价格
+                        info['service_fee'] = extract_broadband_service_fee(filtered_text)
+                        
+                        # 提取终端费价格
+                        info['terminal_fee'] = extract_terminal_fee(filtered_text)
+                        
+                        # 计算费用总和
+                        info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
+                        print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
+                        
+                        # 提取光缆信息
+                        info['fiber_info'] = extract_fiber_info(filtered_text)
+                        
+                        if not info['fiber_info']:
+                            print("未找到光缆信息")
+                            debug_keyword_search(filtered_text)
+                        print("========================\n")
+                        
+                        # 进行验算比较
+                        info['verification_passed'] = verify_calculation(info)
+                        
+                        print(f"====================\n")
+                        results.append(info)
             else:
                 print(f"未找到标记文本，跳过后续处理")
                 results.append({
-                    'code_part': code_part,
+                    'order_code': order_code,
                     'file_name': file_name,
-                    'fiber_length': None,
+                    'fiber_info': [],
+                    'document_content': filtered_text,
                     'extraction_status': '失败',
                     'error': '未找到关键标记文本'
                 })
@@ -431,15 +465,25 @@ def extract_info_from_word(file_path, original_name=None):
             print(f"处理文件 {file_path} 时出错: {e}")
             print(traceback.format_exc())
             results.append({
-                'code_part': code_part if 'code_part' in locals() else '未知',
-                'file_name': file_name,
-                'fiber_length': None,
-                'extraction_status': '失败',
-                'error': str(e)
-            })
+                        'order_code': order_code if 'order_code' in locals() else '未知',
+                        'file_name': file_name,
+                        'fiber_info': [],
+                        'document_content': '',
+                        'extraction_status': '失败',
+                        'error': str(e)
+                    })
     else:
-        print(f"无法从文件名 {file_name} 中提取代码部分")
+        print(f"无法从文件名 {file_name} 中提取单号")
         print(f"文件名格式: {file_name}")
+        # 即使无法提取单号，也添加结果记录，使用默认值
+        results.append({
+            'order_code': '未知',
+            'file_name': file_name,
+            'fiber_info': [],
+            'document_content': '',
+            'extraction_status': '失败',
+            'error': '无法从文件名中提取单号'
+        })
         
     return results
 
@@ -502,14 +546,14 @@ def extract_info_from_zip(zip_path, original_name=None):
             
             # 优先使用来自原始ZIP文件名的单号，如果ZIP单号存在则直接使用，不再从Word文件名提取
             if zip_code_part:
-                code_part = zip_code_part
-                print(f"使用ZIP文件名的单号: {code_part}")
+                order_code = zip_code_part
+                print(f"使用ZIP文件名的单号: {order_code}")
             else:
                 # 如果ZIP单号不存在，再尝试从Word文档文件名中提取
                 match = re.search(r'(EOSC_[A-Za-z0-9_\-]+)(?:[^A-Za-z0-9_\-]|$)', file_name)
                 if match:
-                    code_part = match.group(1)
-                    print(f"从Word文件名提取到单号: {code_part}")
+                    order_code = match.group(1)
+                    print(f"从Word文件名提取到单号: {order_code}")
                 else:
                     print(f"无法从文件名 {file_name} 中提取单号")
                     continue
@@ -526,7 +570,7 @@ def extract_info_from_zip(zip_path, original_name=None):
                 if marker_found:
                     # 提取各类价格信息
                     info = {
-                        'code_part': code_part,
+                            'order_code': order_code,
                         'maintenance_fee': 0.0,
                         'service_fee': 0.0,
                         'terminal_fee': 0.0,
@@ -534,14 +578,15 @@ def extract_info_from_zip(zip_path, original_name=None):
                         'doc_maintenance_total': None,
                         'overall_total_price': None,
                         'total_price': None,
-                        'fiber_length': None,
+                        'fiber_info': [],
+                        'document_content': filtered_text,
                         'verification_passed': False,
                         'file_name': file_name,
                         'extraction_status': '成功'
                     }
                     
                     print(f"\n=== 提取到的价格信息 ===")
-                    print(f"单号: {code_part}")
+                    print(f"单号: {order_code}")
                     
                     # 提取维护费（含税）合计
                     info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
@@ -565,11 +610,11 @@ def extract_info_from_zip(zip_path, original_name=None):
                     info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
                     print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                     
-                    # 提取光缆长度
-                    info['fiber_length'] = extract_fiber_length(filtered_text)
+                    # 提取光缆信息
+                    info['fiber_info'] = extract_fiber_info(filtered_text)
                     
-                    if info['fiber_length'] is None:
-                        print("未找到光缆长度信息")
+                    if not info['fiber_info']:
+                        print("未找到光缆信息")
                         debug_keyword_search(filtered_text)
                     print("========================\n")
                     
@@ -581,9 +626,10 @@ def extract_info_from_zip(zip_path, original_name=None):
                 else:
                     print(f"未找到标记文本，跳过后续处理")
                     results.append({
-                        'code_part': code_part,
+                    'order_code': order_code,
                         'file_name': file_name,
-                        'fiber_length': None,
+                        'fiber_info': [],
+                        'document_content': filtered_text,
                         'extraction_status': '失败',
                         'error': '未找到关键标记文本'
                     })
@@ -591,9 +637,10 @@ def extract_info_from_zip(zip_path, original_name=None):
                 print(f"处理文件 {file_path} 时出错: {e}")
                 print(traceback.format_exc())
                 results.append({
-                    'code_part': code_part if 'code_part' in locals() else '未知',
+                    'order_code': order_code if 'order_code' in locals() else '未知',
                     'file_name': file_name,
-                    'fiber_length': None,
+                    'fiber_info': [],
+                    'document_content': '',
                     'extraction_status': '失败',
                     'error': str(e)
                 })
@@ -602,10 +649,12 @@ def extract_info_from_zip(zip_path, original_name=None):
         print(traceback.format_exc())
         # 添加错误信息到结果中，以便前端展示
         results.append({
+            'order_code': '未知',
+            'file_name': os.path.basename(zip_path),
+            'fiber_info': [],
+            'document_content': '',
             'error': str(e),
-            'fiber_length': None,
-            'extraction_status': '失败',
-            'file_name': os.path.basename(zip_path)
+            'extraction_status': '失败'
         })
 
     finally:

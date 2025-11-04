@@ -347,7 +347,7 @@
             <main class="results-area" style="flex:1;">
                 {% if all_results %}
                     {% for result in all_results %}
-                    <div class="result-card" data-code="{{ result.code_part|default:result.file_name|escape }}">
+                    <div class="result-card" data-code="{{ result.order_code|default:result.file_name|escape }}">
                         {% if result.error %}
                         <div style="border-left:4px solid #f44336;padding-left:10px;">
                             <h2>处理失败</h2>
@@ -361,7 +361,7 @@
                         {% else %}
                         <div class="code-section">
                             <div class="code-label">单号</div>
-                            <div class="code-value clickable-value" onclick="copyToClipboard(this)">{{ result.code_part }}</div>
+                            <div class="code-value clickable-value" onclick="copyToClipboard(this)">{{ result.order_code }}</div>
                         </div>
 
                         <h2>文档信息</h2>

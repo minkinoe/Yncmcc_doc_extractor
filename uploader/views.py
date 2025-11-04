@@ -4,7 +4,12 @@ import re
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
+from django.utils import timezone
+from django.http import HttpResponse
+from wsgiref.util import FileWrapper
+import mimetypes
 from .utils import extract_info_from_zip, extract_info_from_word
+from .models import UploadedFile, ExtractedInfo
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -43,50 +48,100 @@ def upload_file(request):
                 })
                 continue
 
-            # 将上传文件保存到临时文件
+            # 将文件保存到数据库
             try:
-                # 使用唯一文件名以避免冲突
-                import uuid
-                tmp_name = f"upload_{uuid.uuid4().hex}_{file.name}"
-                file_path = os.path.join(settings.MEDIA_ROOT, tmp_name)
-                # 保存原始文件名，供提取函数使用
-                original_name = file.name
-
-                with open(file_path, 'wb+') as destination:
-                    for chunk in file.chunks():
-                        destination.write(chunk)
-
-                logger.info(f"开始处理文件: {file.name}")
+                # 创建上传文件记录
+                uploaded_file = UploadedFile(
+                    original_filename=file.name,
+                    file_size=file.size,
+                    file_type='zip' if is_zip else 'word'
+                )
+                
+                # 保存文件到存储系统
+                uploaded_file.file = file
+                uploaded_file.save()
+                
+                logger.info(f"开始处理文件: {file.name}, ID: {uploaded_file.id}")
+                
+                # 使用Django存储的文件路径进行处理
+                file_path = uploaded_file.file.path
+                
+                # 处理文件并提取信息
                 if is_zip:
-                    results = extract_info_from_zip(file_path, original_name)
+                    results = extract_info_from_zip(file_path, file.name)
                 else:
-                    results = extract_info_from_word(file_path, original_name)
-
-                # results 可能是列表（zip 情况），也可能是单个文件的列表，统一合并
+                    results = extract_info_from_word(file_path, file.name)
+                
+                # 处理提取结果
                 if results:
                     all_results.extend(results)
+                    # 将提取的信息保存到数据库
+                    for result in results:
+                        # 处理DecimalField所需的数据转换
+                        maintenance_fee = float(result.get('maintenance_fee', 0))
+                        service_fee = float(result.get('service_fee', 0))
+                        terminal_fee = float(result.get('terminal_fee', 0))
+                        total_fees = float(result.get('total_fees', 0))
+                        
+                        # 转换其他价格字段
+                        doc_maintenance_total = float(result.get('doc_maintenance_total', 0)) if result.get('doc_maintenance_total') else None
+                        overall_total_price = float(result.get('overall_total_price', 0)) if result.get('overall_total_price') else None
+                        total_price = float(result.get('total_price', 0)) if result.get('total_price') else None
+                        other_fees = float(result.get('other_fees', 0)) if result.get('other_fees') else 0
+                        
+                        # 创建提取信息记录
+                        extracted_info = ExtractedInfo(
+                            uploaded_file=uploaded_file,
+                            order_code=result.get('order_code'),
+                            document_name=result.get('file_name', ''),
+                            document_content=result.get('document_content'),
+                            extraction_status=result.get('extraction_status', '成功'),
+                            extraction_error=result.get('error'),
+                            maintenance_fee=maintenance_fee,
+                            service_fee=service_fee,
+                            terminal_fee=terminal_fee,
+                            other_fees=other_fees,
+                            total_fees=total_fees,
+                            doc_maintenance_total=doc_maintenance_total,
+                            overall_total_price=overall_total_price,
+                            total_price=total_price,
+                            fiber_info=result.get('fiber_info'),
+                            equipment_items=result.get('equipment_items'),
+                            verification_passed=result.get('verification_passed', False),
+                            verification_message=result.get('verification_message')
+                        )
+                        extracted_info.save()
+                    
+                    # 更新文档数量
+                    uploaded_file.document_count = len(results)
                 else:
                     all_results.append({
                         'file_name': file.name,
+                        'order_code': '未知',
                         'extraction_status': '失败',
                         'error': '未提取到任何信息'
                     })
-
+                    
+                # 标记文件已处理
+                uploaded_file.is_processed = True
+                uploaded_file.processed_at = timezone.now()
+                uploaded_file.save()
+                
             except Exception as e:
                 logger.error(f"处理文件 {file.name} 时出错: {str(e)}")
                 all_results.append({
                     'file_name': file.name,
+                    'order_code': '未知',
                     'extraction_status': '失败',
                     'error': str(e)
                 })
-
-            finally:
-                # 尝试删除临时文件
-                try:
-                    if 'file_path' in locals() and os.path.exists(file_path):
-                        os.remove(file_path)
-                except Exception as e:
-                    logger.warning(f"无法删除临时文件 {file_path}: {str(e)}")
+                
+                # 如果创建了上传文件记录，更新错误信息
+                if 'uploaded_file' in locals():
+                    uploaded_file.is_processed = True
+                    uploaded_file.processed_at = timezone.now()
+                    uploaded_file.processing_error = str(e)
+                    uploaded_file.save()
 
         # 检查总体结果并设置消息
         if not all_results:
@@ -108,6 +163,12 @@ def upload_file(request):
 def show_result(request):
     """显示提取结果页面"""
     results = request.session.get('extraction_results', [])
+    
+    # 如果没有session结果（可能是直接访问），可以重定向到历史记录页面
+    if not results:
+        return redirect('file_history')
+    
+
     
     # 对结果进行分组，区分成功和失败的结果
     success_results = []
@@ -158,7 +219,7 @@ def show_result(request):
     unique_codes = []
     seen = set()
     for r in all_results:
-        raw = r.get('code_part') or r.get('file_name') or '未知'
+        raw = r.get('order_code') or r.get('file_name') or '未知'
         code = _clean_order_code(raw)
         # 在每个结果中保存清洗后的显示单号，模板可以使用它来显示更友好的单号
         try:
@@ -174,3 +235,86 @@ def show_result(request):
     context['unique_codes'] = unique_codes
     
     return render(request, 'uploader/result.html', context)
+
+
+def file_history(request):
+    """显示历史上传记录"""
+    # 获取所有上传文件记录，按上传时间倒序排列
+    uploaded_files = UploadedFile.objects.all().order_by('-uploaded_at')
+    
+    # 计算统计信息
+    total_files = uploaded_files.count()
+    processed_files = uploaded_files.filter(is_processed=True).count()
+    error_files = uploaded_files.filter(processing_error__isnull=False).count()
+    
+    # 准备上下文数据
+    context = {
+        'uploaded_files': uploaded_files,
+        'total_files': total_files,
+        'processed_files': processed_files,
+        'error_files': error_files
+    }
+    
+    return render(request, 'uploader/file_history.html', context)
+
+
+def file_detail(request, file_id):
+    """显示特定文件的详细提取结果"""
+    try:
+        # 获取上传文件记录
+        uploaded_file = UploadedFile.objects.get(id=file_id)
+        
+        # 获取该文件的所有提取信息
+        extracted_info_list = uploaded_file.extracted_infos.all()
+        
+        # 准备上下文数据
+        context = {
+            'uploaded_file': uploaded_file,
+            'extracted_info_list': extracted_info_list,
+            'total_documents': extracted_info_list.count(),
+            'success_documents': extracted_info_list.filter(extraction_status='成功').count(),
+            'error_documents': extracted_info_list.filter(extraction_status='失败').count()
+        }
+        
+        return render(request, 'uploader/file_detail.html', context)
+        
+    except UploadedFile.DoesNotExist:
+        messages.error(request, '找不到指定的文件记录')
+        return redirect('file_history')
+    except Exception as e:
+        logger.error(f"查看文件详情时出错: {str(e)}")
+        messages.error(request, f'查看文件详情时出错: {str(e)}')
+        return redirect('file_history')
+
+
+def download_file(request, file_id):
+    """下载上传的文件"""
+    try:
+        # 获取上传文件记录
+        uploaded_file = UploadedFile.objects.get(id=file_id)
+        
+        # 检查文件是否存在
+        if not uploaded_file.file or not os.path.exists(uploaded_file.file.path):
+            messages.error(request, '文件不存在或已被删除')
+            return redirect('file_detail', file_id=file_id)
+        
+        # 获取文件的MIME类型
+        content_type = mimetypes.guess_type(uploaded_file.file.path)[0] or 'application/octet-stream'
+        
+        # 创建文件包装器
+        file_wrapper = FileWrapper(open(uploaded_file.file.path, 'rb'))
+        
+        # 创建响应
+        response = HttpResponse(file_wrapper, content_type=content_type)
+        response['Content-Length'] = os.path.getsize(uploaded_file.file.path)
+        response['Content-Disposition'] = f'attachment; filename="{uploaded_file.original_filename}"'
+        
+        return response
+        
+    except UploadedFile.DoesNotExist:
+        messages.error(request, '找不到指定的文件记录')
+        return redirect('file_history')
+    except Exception as e:
+        logger.error(f"下载文件时出错: {str(e)}")
+        messages.error(request, f'下载文件时出错: {str(e)}')
+        return redirect('file_detail', file_id=file_id)

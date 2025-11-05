@@ -364,7 +364,7 @@
                 </table>
                 {% endif %}
                 
-                {% if info.cable_info %}
+                {% if info.fiber_info %}
                 <h3>光缆信息</h3>
                 <table class="data-table">
                     <tbody>
@@ -374,10 +374,10 @@
                             <th>光缆长度(米)</th>
                             <th>单位</th>
                         </tr>
-                        {% for cable in info.cable_info %}
+                        {% for cable in info.fiber_info %}
                         <tr>
                             <td>{{ cable.description|default:"" }}</td>
-                            <td>{{ cable.type }}</td>
+                            <td>{{ cable.type|default:"" }}</td>
                             <td>{{ cable.length|floatformat:0 }}</td>
                             <td>{{ cable.unit|default:"米" }}</td>
                         </tr>

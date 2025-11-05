@@ -387,10 +387,10 @@
                             </div>
                             {% endif %}
 
-                            {% if result.fiber_length %}
+                            {% if result.fiber_info %}
                             <div class="info-item">
                                 <span class="info-label">光缆长度</span>
-                                <span class="clickable-value" onclick="copyToClipboard(this)">{{ result.fiber_length|floatformat:0 }}米</span>
+                                <span class="clickable-value" onclick="copyToClipboard(this)">{% for fiber in result.fiber_info %}{{ fiber.length|floatformat:0 }}{% if not forloop.last %} + {% endif %}{% endfor %}米</span>
                             </div>
                             {% endif %}
 

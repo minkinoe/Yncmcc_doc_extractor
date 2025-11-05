@@ -440,7 +440,8 @@ def extract_info_from_word(file_path, original_name=None):
                         print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                         
                         # 提取光缆信息
-                        info['fiber_info'] = extract_fiber_info(filtered_text)
+                        fiber_info_list = extract_fiber_info(filtered_text)
+                        info['fiber_info'] = fiber_info_list
                         
                         if not info['fiber_info']:
                             print("未找到光缆信息")
@@ -612,7 +613,8 @@ def extract_info_from_zip(zip_path, original_name=None):
                     print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                     
                     # 提取光缆信息
-                    info['fiber_info'] = extract_fiber_info(filtered_text)
+                    fiber_info_list = extract_fiber_info(filtered_text)
+                    info['fiber_info'] = fiber_info_list
                     
                     if not info['fiber_info']:
                         print("未找到光缆信息")

@@ -223,7 +223,8 @@ def extract_overall_total_price(text):
         re.compile(r'总体估算\s*([\d,]+\.?\d*)元'),
         re.compile(r'项目总体合计（含税）[：:]*\s*([\d,]+\.?\d*)元'),
         re.compile(r'总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元'),
-        re.compile(r'和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元')
+        re.compile(r'和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元'),
+        re.compile(r'.*?和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元')
     ]
     for pattern in patterns:
         match = pattern.search(text)

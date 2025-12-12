@@ -395,6 +395,8 @@ def extract_info_from_word(file_path, original_name=None):
             
             # 不再过滤文本，直接使用完整的原始文本
             filtered_text = '\n'.join(full_text)
+            # 删除文本中的空格
+            filtered_text = filtered_text.replace(" ", "")
             marker_found = True
             
             if marker_found:

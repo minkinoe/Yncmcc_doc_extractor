@@ -267,16 +267,76 @@ def file_detail(request, file_id):
         # 获取该文件的所有提取信息
         extracted_info_list = uploaded_file.extracted_infos.all()
         
-        # 准备上下文数据
+        # 将数据库模型转换为字典格式，以适配result.html模板
+        all_results = []
+        success_results = []
+        error_results = []
+        
+        for info in extracted_info_list:
+            result = {
+                'file_name': info.document_name,
+                'order_code': info.order_code,
+                'extraction_status': info.extraction_status,
+                'error': info.extraction_error,
+                'maintenance_fee': info.maintenance_fee,
+                'service_fee': info.service_fee,
+                'terminal_fee': info.terminal_fee,
+                'total_fees': info.total_fees,
+                'doc_maintenance_total': info.doc_maintenance_total,
+                'overall_total_price': info.overall_total_price,
+                'total_price': info.total_price,
+                'fiber_info': info.fiber_info,
+                'equipment_items': info.equipment_items,
+                'verification_passed': info.verification_passed,
+                'verification_message': info.verification_message,
+                'document_content': info.document_content,
+            }
+            all_results.append(result)
+            
+            if info.extraction_status == '失败' or info.extraction_error:
+                error_results.append(result)
+            else:
+                success_results.append(result)
+
+        # 准备返回给模板的数据
         context = {
-            'uploaded_file': uploaded_file,
-            'extracted_info_list': extracted_info_list,
-            'total_documents': extracted_info_list.count(),
-            'success_documents': extracted_info_list.filter(extraction_status='成功').count(),
-            'error_documents': extracted_info_list.filter(extraction_status='失败').count()
+            'results': success_results,
+            'error_results': error_results,
+            'all_results': all_results,
+            'total_success': len(success_results),
+            'total_error': len(error_results),
+            'total_processed': len(all_results),
+            'uploaded_file': uploaded_file,  # 传递原始文件信息
+            'back_url': 'file_history', # 标记返回路径
         }
         
-        return render(request, 'uploader/file_detail.html', context)
+        # 生成单号列表逻辑 (复用show_result的逻辑)
+        def _clean_order_code(name: str) -> str:
+            if not name:
+                return '未知'
+            base = os.path.splitext(name)[0]
+            m = re.search(r'(EOSC_[A-Za-z0-9_\-]+)', base)
+            if m:
+                return m.group(1)
+            base2 = re.sub(r'^upload_[0-9a-fA-F]+_', '', base)
+            return base2 or base
+
+        unique_codes = []
+        seen = set()
+        for r in all_results:
+            raw = r.get('order_code') or r.get('file_name') or '未知'
+            code = _clean_order_code(raw)
+            try:
+                r['display_code'] = code
+            except Exception:
+                pass
+            if code not in seen:
+                unique_codes.append(code)
+                seen.add(code)
+
+        context['unique_codes'] = unique_codes
+        
+        return render(request, 'uploader/result.html', context)
         
     except UploadedFile.DoesNotExist:
         messages.error(request, '找不到指定的文件记录')

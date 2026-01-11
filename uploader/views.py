@@ -4,6 +4,7 @@ import re
 import json
 import zipfile
 from functools import lru_cache
+from zoneinfo import ZoneInfo
 from xml.etree import ElementTree
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -11,6 +12,7 @@ from urllib.error import URLError, HTTPError
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Q
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.http import require_POST
@@ -21,6 +23,35 @@ from .models import UploadedFile, ExtractedInfo
 
 # 配置日志
 logger = logging.getLogger(__name__)
+
+def format_beijing_datetime(dt):
+    if not dt:
+        return None
+    try:
+        bj = dt.astimezone(ZoneInfo('Asia/Shanghai'))
+        return bj.strftime('%Y-%m-%d %H:%M:%S')
+    except Exception:
+        return None
+
+def get_default_construction_order_code(order_code):
+    if not order_code:
+        return None
+
+    code = str(order_code).strip()
+    if not code:
+        return None
+
+    m = re.match(r'^(.*)_KC$', code)
+    if m:
+        base = m.group(1)
+        if base:
+            return f"{base}_JS"
+        return None
+
+    if code.endswith('KC') and len(code) >= 2:
+        return f"{code[:-2]}JS"
+
+    return None
 
 def _normalize_street_name(value):
     if value is None:
@@ -241,14 +272,42 @@ def get_township_from_address(address):
 def dashboard(request, file_id=None):
     """统一的仪表盘视图，处理上传和显示结果"""
     # 获取历史记录供侧边栏使用
-    history_list = UploadedFile.objects.all().order_by('-uploaded_at')[:50]
+    filters = {
+        'q': (request.GET.get('q') or '').strip(),
+        'order_code': (request.GET.get('order_code') or '').strip(),
+        'group_name': (request.GET.get('group_name') or '').strip(),
+        'construction_unit': (request.GET.get('construction_unit') or '').strip(),
+    }
+
+    history_qs = UploadedFile.objects.all()
+    if filters['order_code']:
+        history_qs = history_qs.filter(extracted_infos__order_code__icontains=filters['order_code'])
+    if filters['group_name']:
+        history_qs = history_qs.filter(group_name__icontains=filters['group_name'])
+    if filters['construction_unit']:
+        history_qs = history_qs.filter(construction_unit__icontains=filters['construction_unit'], extracted_infos__construction_email_sent=True)
+    if filters['q']:
+        q = filters['q']
+        history_qs = history_qs.filter(
+            Q(original_filename__icontains=q)
+            | Q(group_name__icontains=q)
+            | Q(address__icontains=q)
+            | Q(township__icontains=q)
+            | Q(construction_unit__icontains=q)
+            | Q(extracted_infos__order_code__icontains=q)
+        )
+
+    history_list = history_qs.distinct().order_by('-uploaded_at')[:50]
+    history_query_string = request.GET.urlencode()
     
     context = {
         'history_list': history_list,
         'selected_file_id': file_id,
         'results': [],
         'unique_codes': [],
-        'selected_upload_id': file_id
+        'selected_upload_id': file_id,
+        'filters': filters,
+        'history_query_string': history_query_string,
     }
 
     # 处理上传
@@ -316,6 +375,7 @@ def dashboard(request, file_id=None):
                         ExtractedInfo.objects.create(
                             uploaded_file=uploaded_file,
                             order_code=result.get('order_code'),
+                            construction_order_code=get_default_construction_order_code(result.get('order_code')),
                             document_name=result.get('file_name', ''),
                             document_content=result.get('document_content'),
                             extraction_status=result.get('extraction_status', '成功'),
@@ -393,11 +453,22 @@ def dashboard(request, file_id=None):
                     code = m.group(1) if m else base
                 
                 unique_codes.add(code)
+
+                construction_order_code = info.construction_order_code
+                if not construction_order_code and info.order_code:
+                    construction_order_code = get_default_construction_order_code(info.order_code)
+                    if construction_order_code:
+                        info.construction_order_code = construction_order_code
+                        info.save(update_fields=['construction_order_code'])
                 
                 results.append({
+                    'extracted_info_id': info.id,
                     'file_name': info.document_name,
                     'order_code': info.order_code,
                     'display_code': code, # 用于前端过滤
+                    'construction_order_code': construction_order_code,
+                    'construction_email_sent': info.construction_email_sent,
+                    'construction_email_sent_at': format_beijing_datetime(info.construction_email_sent_at),
                     'extraction_status': info.extraction_status,
                     'error': info.extraction_error,
                     'maintenance_fee': info.maintenance_fee,
@@ -465,6 +536,57 @@ def update_construction_unit(request, file_id):
 
     uploaded_file.save(update_fields=['construction_unit'])
     return JsonResponse({'ok': True, 'construction_unit': uploaded_file.construction_unit})
+
+@require_POST
+def update_construction_order_code(request, info_id):
+    try:
+        info = ExtractedInfo.objects.get(id=info_id)
+    except ExtractedInfo.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
+
+    try:
+        payload = json.loads((request.body or b'{}').decode('utf-8', errors='replace'))
+    except json.JSONDecodeError:
+        payload = {}
+
+    code = payload.get('construction_order_code')
+    code = (str(code).strip() if code is not None else '')
+    if code == '':
+        info.construction_order_code = None
+    else:
+        info.construction_order_code = code[:100]
+
+    info.save(update_fields=['construction_order_code'])
+    return JsonResponse({'ok': True, 'construction_order_code': info.construction_order_code})
+
+@require_POST
+def update_construction_email_sent(request, info_id):
+    try:
+        info = ExtractedInfo.objects.get(id=info_id)
+    except ExtractedInfo.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
+
+    try:
+        payload = json.loads((request.body or b'{}').decode('utf-8', errors='replace'))
+    except json.JSONDecodeError:
+        payload = {}
+
+    checked = payload.get('construction_email_sent')
+    checked = True if checked is True else False
+
+    if checked:
+        info.construction_email_sent = True
+        info.construction_email_sent_at = timezone.now()
+    else:
+        info.construction_email_sent = False
+        info.construction_email_sent_at = None
+
+    info.save(update_fields=['construction_email_sent', 'construction_email_sent_at'])
+    return JsonResponse({
+        'ok': True,
+        'construction_email_sent': info.construction_email_sent,
+        'construction_email_sent_at': format_beijing_datetime(info.construction_email_sent_at),
+    })
 
 def upload_file(request):
     """(已弃用) 文件上传页面"""

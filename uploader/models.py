@@ -46,6 +46,9 @@ class ExtractedInfo(models.Model):
     
     # 文档基本信息
     order_code = models.CharField(max_length=100, help_text="单号", null=True, blank=True, db_index=True)
+    construction_order_code = models.CharField(max_length=100, help_text="建设单号", null=True, blank=True, db_index=True)
+    construction_email_sent = models.BooleanField(default=False, help_text="是否发送建设邮件")
+    construction_email_sent_at = models.DateTimeField(null=True, blank=True, help_text="建设邮件发送勾选时间")
     document_name = models.CharField(max_length=255, help_text="文档文件名", default="")
     document_content = models.TextField(help_text="从Word中提取的完整文本", null=True, blank=True)
     extraction_status = models.CharField(max_length=20, default="待处理")

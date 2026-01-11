@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word内容提取系统 - 统一面板</title>
+    <title>勘察建设管理系统</title>
     <style>
         :root {
             --primary-color: #2196F3;
@@ -274,7 +274,7 @@
 
     <header class="header">
         <div class="brand">
-            <span>📄</span> Word内容提取系统
+            <span>📄</span> 勘察建设管理系统
         </div>
         <div>
             <!-- 可选：用户头像或设置 -->
@@ -295,11 +295,28 @@
                 </form>
             </div>
 
+            <div class="sidebar-section" style="padding-top: 10px;">
+                <form method="get" action="{% if selected_file_id %}{% url 'dashboard_with_id' selected_file_id %}{% else %}{% url 'dashboard' %}{% endif %}">
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input name="q" value="{{ filters.q }}" placeholder="搜索：单号/集团/施工单位" style="flex:1; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+                        <button type="submit" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; background:white; cursor:pointer; font-size:13px;">搜索</button>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr; gap:8px;">
+                        <input name="order_code" value="{{ filters.order_code }}" placeholder="单号(精确筛选)" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+                        <input name="group_name" value="{{ filters.group_name }}" placeholder="集团名称" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+                        <input name="construction_unit" value="{{ filters.construction_unit }}" placeholder="施工单位" style="padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px;">
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                        <a href="{% if selected_file_id %}{% url 'dashboard_with_id' selected_file_id %}{% else %}{% url 'dashboard' %}{% endif %}" style="flex:1; text-align:center; padding:8px 10px; border:1px solid #ddd; border-radius:6px; background:white; text-decoration:none; color:#333; font-size:13px;">清空筛选</a>
+                    </div>
+                </form>
+            </div>
+
             <div class="history-header">最近上传记录</div>
             <div class="history-list-container">
                 {% if history_list %}
                     {% for h_file in history_list %}
-                    <a href="{% url 'dashboard_with_id' h_file.id %}" class="history-item {% if selected_file_id == h_file.id %}active{% endif %}">
+                    <a href="{% url 'dashboard_with_id' h_file.id %}{% if history_query_string %}?{{ history_query_string }}{% endif %}" class="history-item {% if selected_file_id == h_file.id %}active{% endif %}">
                         <span class="history-mark {% if h_file.is_marked %}is-marked{% endif %}" onclick="toggleMark(event, {{ h_file.id }}, this)">{% if h_file.is_marked %}★{% else %}☆{% endif %}</span>
                         <div class="h-filename">{{ h_file.original_filename }}</div>
                         <div class="h-meta">
@@ -330,7 +347,7 @@
                  </div>
 
                 {% for result in results %}
-                <div class="result-card" data-code="{{ result.display_code }}">
+                <div class="result-card" data-code="{{ result.display_code }}" data-info-id="{{ result.extracted_info_id }}">
                     <div class="card-header">
                         <div class="card-title">
                             {% if result.order_code %}<span class="clickable-value" onclick="copyPlainText(this)">{{ result.order_code }}</span>{% else %}{{ result.file_name }}{% endif %}
@@ -434,6 +451,20 @@
 
                         {% if result.document_content %}
                         <div class="text-content-toggle">
+                            <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                                <div style="font-size:12px; color:#666;">建设单号</div>
+                                <div class="construction-order-code-value" style="font-size:14px; font-weight:600; color:#333;">{{ result.construction_order_code|default:"-" }}</div>
+                                <button onclick="editConstructionOrderCode(event)" style="padding:2px 8px; font-size:12px; border:1px solid #ddd; border-radius:10px; background:white; cursor:pointer;">编辑</button>
+                                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#666;">
+                                    <input class="construction-email-sent-checkbox" type="checkbox" {% if result.construction_email_sent %}checked{% endif %} onchange="toggleConstructionEmailSent(event)">
+                                    是否发送建设邮件
+                                </label>
+                                {% if result.construction_email_sent_at %}
+                                    <div class="construction-email-sent-at" style="font-size:12px; color:#999;">{{ result.construction_email_sent_at }}</div>
+                                {% else %}
+                                    <div class="construction-email-sent-at" style="font-size:12px; color:#999;"></div>
+                                {% endif %}
+                            </div>
                             <button onclick="toggleText(this)" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-size:13px; font-weight:500;">
                                 ▶ 显示完整文本内容
                             </button>
@@ -575,6 +606,61 @@
                 document.querySelectorAll('.construction-unit-value').forEach(el => {
                     el.innerText = v;
                 });
+            }).catch(() => {});
+        }
+
+        function editConstructionOrderCode(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            const card = ev.target.closest('.result-card');
+            if (!card) return;
+
+            const infoId = card.dataset.infoId;
+            if (!infoId) return;
+
+            const valueEl = card.querySelector('.construction-order-code-value');
+            const currentText = valueEl ? valueEl.innerText.trim() : '';
+            const current = currentText === '-' ? '' : currentText;
+            const next = prompt('请输入建设单号（留空清除）', current);
+            if (next === null) return;
+
+            fetch("{% url 'update_construction_order_code' 0 %}".replace('/0/', `/${infoId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ construction_order_code: next })
+            }).then(r => r.json()).then(data => {
+                if (!data || !data.ok) return;
+                const v = data.construction_order_code ? data.construction_order_code : '-';
+                if (valueEl) valueEl.innerText = v;
+            }).catch(() => {});
+        }
+
+        function toggleConstructionEmailSent(ev) {
+            ev.stopPropagation();
+            const checkbox = ev.target;
+            const card = checkbox.closest('.result-card');
+            if (!card) return;
+
+            const infoId = card.dataset.infoId;
+            if (!infoId) return;
+
+            const checked = checkbox.checked === true;
+            fetch("{% url 'update_construction_email_sent' 0 %}".replace('/0/', `/${infoId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ construction_email_sent: checked })
+            }).then(r => r.json()).then(data => {
+                if (!data || !data.ok) return;
+                checkbox.checked = data.construction_email_sent === true;
+                const atEl = card.querySelector('.construction-email-sent-at');
+                if (atEl) atEl.innerText = data.construction_email_sent_at ? data.construction_email_sent_at : '';
             }).catch(() => {});
         }
 

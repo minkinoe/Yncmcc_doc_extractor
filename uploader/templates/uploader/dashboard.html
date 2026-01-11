@@ -352,6 +352,19 @@
                                 <div class="info-label">地址(来自ZIP文件名)</div>
                                 <div class="info-value">{{ result.zip_address|default:"-" }}</div>
                             </div>
+                            <div class="info-box">
+                                <div class="info-label">街道(高德解析)</div>
+                                <div class="info-value">{{ result.zip_township|default:"-" }}</div>
+                            </div>
+                            <div class="info-box">
+                                <div class="info-label">施工单位(街道匹配)</div>
+                                <div class="info-value">
+                                    <span class="construction-unit-value">{{ result.zip_construction_unit|default:"-" }}</span>
+                                    {% if selected_upload_id %}
+                                        <button onclick="editConstructionUnit(event)" style="margin-left:8px; padding:2px 8px; font-size:12px; border:1px solid #ddd; border-radius:10px; background:white; cursor:pointer;">编辑</button>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                         <div class="info-grid">
                             <div class="info-box">
@@ -532,6 +545,36 @@
                     el.classList.remove('is-marked');
                     el.textContent = '☆';
                 }
+            }).catch(() => {});
+        }
+
+        const selectedUploadId = {{ selected_upload_id|default:"null" }};
+
+        function editConstructionUnit(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (selectedUploadId === null) return;
+
+            const card = ev.target.closest('.result-card');
+            const valueEl = card ? card.querySelector('.construction-unit-value') : document.querySelector('.construction-unit-value');
+            const currentText = valueEl ? valueEl.innerText.trim() : '';
+            const current = currentText === '-' ? '' : currentText;
+            const next = prompt('请输入施工单位（留空清除）', current);
+            if (next === null) return;
+
+            fetch("{% url 'update_construction_unit' 0 %}".replace('/0/', `/${selectedUploadId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ construction_unit: next })
+            }).then(r => r.json()).then(data => {
+                if (!data || !data.ok) return;
+                const v = data.construction_unit ? data.construction_unit : '-';
+                document.querySelectorAll('.construction-unit-value').forEach(el => {
+                    el.innerText = v;
+                });
             }).catch(() => {});
         }
 

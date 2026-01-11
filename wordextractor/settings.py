@@ -45,6 +45,9 @@ INSTALLED_APPS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+AMAP_API_KEY = os.environ.get('AMAP_API_KEY', '153784f37d6d65dbaae9c568fdc650db')
+STREET_TEAM_XLSX_PATH = os.environ.get('STREET_TEAM_XLSX_PATH', str(BASE_DIR / '街道_施工队.xlsx'))
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

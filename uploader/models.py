@@ -17,6 +17,8 @@ class UploadedFile(models.Model):
     original_filename = models.CharField(max_length=255)
     file_size = models.IntegerField(help_text="文件大小（字节）", default=0)
     file_type = models.CharField(max_length=50, help_text="文件类型，如zip、doc、docx")
+    group_name = models.CharField(max_length=255, null=True, blank=True, help_text="集团名称（来自ZIP文件名）")
+    address = models.CharField(max_length=255, null=True, blank=True, help_text="地址（来自ZIP文件名）")
     
     # 处理信息
     uploaded_at = models.DateTimeField(auto_now_add=True)

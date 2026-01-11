@@ -194,6 +194,12 @@ def read_word_document(file_path):
     return full_text
 
 
+def normalize_text_for_extraction(text):
+    if not text:
+        return ''
+    return re.sub(r'[\s\u00A0\u3000\u2000-\u200B\u202F\u205F\uFEFF]+', '', text)
+
+
 
 def extract_price_info(text, price_type, patterns):
     """从文本中提取价格信息"""
@@ -209,23 +215,22 @@ def extract_price_info(text, price_type, patterns):
 def extract_maintenance_fee(text):
     """提取维护费（含税）合计"""
     patterns = [
-        re.compile(r'维护费（含税）合计[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'维护费合计[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'维护费（含税）[：:]*\s*([\d,]+\.?\d*)元')
+        re.compile(r'维护费（含税）合计[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'维护费合计[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'维护费（含税）[：:]*([\d,]+\.?\d*)元')
     ]
     return extract_price_info(text, "维护费（含税）", patterns)
 
 def extract_overall_total_price(text):
     """提取总体估算价格"""
     patterns = [
-        re.compile(r'总体估算[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'总体估算价格[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'总体估算\s*([\d,]+\.?\d*)元'),
-        re.compile(r'项目总体合计（含税）[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元'),
-        re.compile(r'和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元'),
-        re.compile(r'.*?和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*)元'),
-        re.compile(r'.*?和商务总体估算（含税）共计[\s:：]*([\d,]+\.?\d*) 元')
+        re.compile(r'总体估算[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'总体估算价格[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'总体估算([\d,]+\.?\d*)元'),
+        re.compile(r'项目总体合计（含税）[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'总体估算（含税）共计[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'和商务总体估算（含税）共计[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'.*?和商务总体估算（含税）共计[：:]*([\d,]+\.?\d*)元'),
     ]
     for pattern in patterns:
         match = pattern.search(text)
@@ -239,9 +244,9 @@ def extract_overall_total_price(text):
 def extract_total_price(text):
     """提取总估算价格"""
     patterns = [
-        re.compile(r'项目合计（含税）总估算\s*([\d,]+\.?\d*)元'),
-        re.compile(r'总估算\s*([\d,]+\.?\d*)元'),
-        re.compile(r'总估算[：:]*\s*([\d,]+\.?\d*)元')
+        re.compile(r'项目合计（含税）总估算([\d,]+\.?\d*)元'),
+        re.compile(r'总估算([\d,]+\.?\d*)元'),
+        re.compile(r'总估算[：:]*([\d,]+\.?\d*)元')
     ]
     for pattern in patterns:
         match = pattern.search(text)
@@ -255,28 +260,27 @@ def extract_total_price(text):
 def extract_broadband_maintenance_fee(text):
     """提取宽带维护费价格"""
     patterns = [
-        re.compile(r'宽带维护费（含税）[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'宽带维护费（含税）[\s:：]*[^=]*=([\d,]+\.?\d*)元'),
-        re.compile(r'宽带维护费（含税）[\s:：]*([\d,]+\.?\d*)元'),
-        re.compile(r'宽带维护费（含税）合计[：:]*\s*([\d,]+\.?\d*)元')
+        re.compile(r'宽带维护费（含税）[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'宽带维护费（含税）[：:]*[^=]*=([\d,]+\.?\d*)元'),
+        re.compile(r'宽带维护费（含税）合计[：:]*([\d,]+\.?\d*)元')
     ]
     return extract_price_info(text, "宽带维护费（含税）", patterns)
 
 def extract_broadband_service_fee(text):
     """提取宽带服务费价格"""
     patterns = [
-        re.compile(r'宽带服务费（含税）[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'宽带服务费（含税）[\s:：]*[^=]*=([\d,]+\.?\d*)元'),
-        re.compile(r'宽带服务费（含税）[\s:：]*([\d,]+\.?\d*)元')
+        re.compile(r'宽带服务费（含税）[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'宽带服务费（含税）[：:]*[^=]*=([\d,]+\.?\d*)元'),
+        re.compile(r'宽带服务费（含税）[：:]*([\d,]+\.?\d*)元')
     ]
     return extract_price_info(text, "宽带服务费（含税）", patterns)
 
 def extract_terminal_fee(text):
     """提取终端费价格"""
     patterns = [
-        re.compile(r'终端费（含税）[：:]*\s*([\d,]+\.?\d*)元'),
-        re.compile(r'终端费（含税）[\s:：]*[^=]*=([\d,]+\.?\d*)元'),
-        re.compile(r'终端费（含税）[\s:：]*([\d,]+\.?\d*)元')
+        re.compile(r'终端费（含税）[：:]*([\d,]+\.?\d*)元'),
+        re.compile(r'终端费（含税）[：:]*[^=]*=([\d,]+\.?\d*)元'),
+        re.compile(r'终端费（含税）[：:]*([\d,]+\.?\d*)元')
     ]
     return extract_price_info(text, "终端费（含税）", patterns)
 
@@ -284,20 +288,17 @@ def extract_fiber_info(text):
     """提取光缆信息 - 支持多条光缆记录，返回JSON格式数据"""
     # 尝试多种可能的光缆长度格式
     fiber_patterns = [
-        re.compile(r'光缆\s*([\d.]+)\s*米'),  # 光缆 123 米
         re.compile(r'光缆([\d.]+)米'),         # 光缆123米
-        re.compile(r'光缆长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆长度：123米
-        re.compile(r'光缆长度\s*为\s*([\d.]+)\s*米'),  # 光缆长度为123米
-        re.compile(r'光缆\s*长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆 长度：123米
-        re.compile(r'光缆\s*约\s*([\d.]+)\s*米'),  # 光缆约123米
-        re.compile(r'([\d.]+)\s*米\s*光缆'),  # 123米光缆
+        re.compile(r'光缆长度[：:]([\d.]+)米'),  # 光缆长度：123米
+        re.compile(r'光缆长度为([\d.]+)米'),  # 光缆长度为123米
+        re.compile(r'光缆约([\d.]+)米'),  # 光缆约123米
+        re.compile(r'([\d.]+)米光缆'),  # 123米光缆
         # 添加更多可能的格式
-        re.compile(r'光缆\s*总长度\s*[：:]\s*([\d.]+)\s*米'),  # 光缆总长度：123米
-        re.compile(r'光缆\s*总长\s*[：:]\s*([\d.]+)\s*米'),    # 光缆总长：123米
-        re.compile(r'光纤\s*([\d.]+)\s*米'),  # 光纤 123 米
+        re.compile(r'光缆总长度[：:]([\d.]+)米'),  # 光缆总长度：123米
+        re.compile(r'光缆总长[：:]([\d.]+)米'),    # 光缆总长：123米
         re.compile(r'光纤([\d.]+)米'),         # 光纤123米
-        re.compile(r'光缆\s*铺设\s*([\d.]+)\s*米'),  # 光缆铺设 123 米
-        re.compile(r'铺设\s*光缆\s*([\d.]+)\s*米')   # 铺设光缆 123 米
+        re.compile(r'光缆铺设([\d.]+)米'),  # 光缆铺设123米
+        re.compile(r'铺设光缆([\d.]+)米')   # 铺设光缆123米
     ]
     
     # 首先在过滤后的文本中搜索
@@ -326,8 +327,8 @@ def extract_fiber_info(text):
                 
                 # 尝试从上下文提取描述
                 description_patterns = [
-                    re.compile(r'(\w+)\s*光缆'),
-                    re.compile(r'光缆\s*(\w+)')
+                    re.compile(r'(\w+)光缆'),
+                    re.compile(r'光缆(\w+)')
                 ]
                 for desc_pattern in description_patterns:
                     desc_match = desc_pattern.search(context)
@@ -394,9 +395,8 @@ def extract_info_from_word(file_path, original_name=None):
             full_text = read_word_document(file_path)
             
             # 不再过滤文本，直接使用完整的原始文本
-            filtered_text = '\n'.join(full_text)
-            # 删除文本中的空格
-            filtered_text = filtered_text.replace(" ", "")
+            raw_text = '\n'.join(full_text)
+            normalized_text = normalize_text_for_extraction(raw_text)
             marker_found = True
             
             if marker_found:
@@ -411,7 +411,7 @@ def extract_info_from_word(file_path, original_name=None):
                             'overall_total_price': None,
                             'total_price': None,
                             'fiber_info': [],
-                            'document_content': filtered_text,
+                            'document_content': raw_text,
                             'verification_passed': False,
                             'file_name': file_name,
                             'extraction_status': '成功'
@@ -421,34 +421,34 @@ def extract_info_from_word(file_path, original_name=None):
                         print(f"单号: {order_code}")
                         
                         # 提取维护费（含税）合计
-                        info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
+                        info['doc_maintenance_total'] = extract_maintenance_fee(normalized_text)
                         
                         # 提取总体估算价格
-                        info['overall_total_price'] = extract_overall_total_price(filtered_text)
+                        info['overall_total_price'] = extract_overall_total_price(normalized_text)
                         
                         # 提取总估算价格
-                        info['total_price'] = extract_total_price(filtered_text)
+                        info['total_price'] = extract_total_price(normalized_text)
                         
                         # 提取宽带维护费价格
-                        info['maintenance_fee'] = extract_broadband_maintenance_fee(filtered_text)
+                        info['maintenance_fee'] = extract_broadband_maintenance_fee(normalized_text)
                         
                         # 提取宽带服务费价格
-                        info['service_fee'] = extract_broadband_service_fee(filtered_text)
+                        info['service_fee'] = extract_broadband_service_fee(normalized_text)
                         
                         # 提取终端费价格
-                        info['terminal_fee'] = extract_terminal_fee(filtered_text)
+                        info['terminal_fee'] = extract_terminal_fee(normalized_text)
                         
                         # 计算费用总和
                         info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
                         print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                         
                         # 提取光缆信息
-                        fiber_info_list = extract_fiber_info(filtered_text)
+                        fiber_info_list = extract_fiber_info(normalized_text)
                         info['fiber_info'] = fiber_info_list
                         
                         if not info['fiber_info']:
                             print("未找到光缆信息")
-                            debug_keyword_search(filtered_text)
+                            debug_keyword_search(normalized_text)
                         print("========================\n")
                         
                         # 进行验算比较
@@ -462,7 +462,7 @@ def extract_info_from_word(file_path, original_name=None):
                     'order_code': order_code,
                     'file_name': file_name,
                     'fiber_info': [],
-                    'document_content': filtered_text,
+                    'document_content': raw_text,
                     'extraction_status': '失败',
                     'error': '未找到关键标记文本'
                 })
@@ -568,8 +568,8 @@ def extract_info_from_zip(zip_path, original_name=None):
                 print("开始读取Word文档内容...")
                 full_text = read_word_document(file_path)
                 
-                # 不再过滤文本，直接使用完整的原始文本
-                filtered_text = '\n'.join(full_text)
+                raw_text = '\n'.join(full_text)
+                normalized_text = normalize_text_for_extraction(raw_text)
                 marker_found = True
                 
                 if marker_found:
@@ -584,7 +584,7 @@ def extract_info_from_zip(zip_path, original_name=None):
                         'overall_total_price': None,
                         'total_price': None,
                         'fiber_info': [],
-                        'document_content': filtered_text,
+                        'document_content': raw_text,
                         'verification_passed': False,
                         'file_name': file_name,
                         'extraction_status': '成功'
@@ -594,34 +594,34 @@ def extract_info_from_zip(zip_path, original_name=None):
                     print(f"单号: {order_code}")
                     
                     # 提取维护费（含税）合计
-                    info['doc_maintenance_total'] = extract_maintenance_fee(filtered_text)
+                    info['doc_maintenance_total'] = extract_maintenance_fee(normalized_text)
                     
                     # 提取总体估算价格
-                    info['overall_total_price'] = extract_overall_total_price(filtered_text)
+                    info['overall_total_price'] = extract_overall_total_price(normalized_text)
                     
                     # 提取总估算价格
-                    info['total_price'] = extract_total_price(filtered_text)
+                    info['total_price'] = extract_total_price(normalized_text)
                     
                     # 提取宽带维护费价格
-                    info['maintenance_fee'] = extract_broadband_maintenance_fee(filtered_text)
+                    info['maintenance_fee'] = extract_broadband_maintenance_fee(normalized_text)
                     
                     # 提取宽带服务费价格
-                    info['service_fee'] = extract_broadband_service_fee(filtered_text)
+                    info['service_fee'] = extract_broadband_service_fee(normalized_text)
                     
                     # 提取终端费价格
-                    info['terminal_fee'] = extract_terminal_fee(filtered_text)
+                    info['terminal_fee'] = extract_terminal_fee(normalized_text)
                     
                     # 计算费用总和
                     info['total_fees'] = info['maintenance_fee'] + info['service_fee'] + info['terminal_fee']
                     print(f"宽带维护费、宽带服务费和终端费的总和: {info['total_fees']:.4f}元")
                     
                     # 提取光缆信息
-                    fiber_info_list = extract_fiber_info(filtered_text)
+                    fiber_info_list = extract_fiber_info(normalized_text)
                     info['fiber_info'] = fiber_info_list
                     
                     if not info['fiber_info']:
                         print("未找到光缆信息")
-                        debug_keyword_search(filtered_text)
+                        debug_keyword_search(normalized_text)
                     print("========================\n")
                     
                     # 进行验算比较
@@ -635,7 +635,7 @@ def extract_info_from_zip(zip_path, original_name=None):
                     'order_code': order_code,
                         'file_name': file_name,
                         'fiber_info': [],
-                        'document_content': filtered_text,
+                        'document_content': raw_text,
                         'extraction_status': '失败',
                         'error': '未找到关键标记文本'
                     })

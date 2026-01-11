@@ -28,7 +28,6 @@ def dashboard(request, file_id=None):
 
     # 处理上传
     if request.method == 'POST':
-        # 复用 upload_file 的核心逻辑
         uploaded_files = request.FILES.getlist('files') or []
         if not uploaded_files:
             # 兼容旧字段
@@ -46,15 +45,22 @@ def dashboard(request, file_id=None):
                 # 验证文件类型
                 name_lower = file.name.lower()
                 is_zip = name_lower.endswith('.zip')
-                is_word = name_lower.endswith('.doc') or name_lower.endswith('.docx')
-
-                if not (is_zip or is_word): continue
+                if not is_zip:
+                    messages.error(request, f'仅支持ZIP文件: {file.name}')
+                    continue
 
                 # 创建记录
+                filename_base = os.path.splitext(file.name)[0]
+                filename_base = re.sub(r'\(\d+\)$', '', filename_base)
+                parts = filename_base.split('+')
+                zip_group_name = parts[1] if len(parts) > 1 else ''
+                zip_address = '+'.join(parts[2:]) if len(parts) > 2 else ''
                 uploaded_file = UploadedFile(
                     original_filename=file.name,
                     file_size=file.size,
-                    file_type='zip' if is_zip else 'word'
+                    file_type='zip',
+                    group_name=zip_group_name or None,
+                    address=zip_address or None
                 )
                 uploaded_file.file = file
                 uploaded_file.save()
@@ -63,10 +69,7 @@ def dashboard(request, file_id=None):
                 file_path = uploaded_file.file.path
                 
                 # 提取
-                if is_zip:
-                    results = extract_info_from_zip(file_path, file.name)
-                else:
-                    results = extract_info_from_word(file_path, file.name)
+                results = extract_info_from_zip(file_path, file.name)
                 
                 # 保存结果到数据库
                 if results:
@@ -126,6 +129,16 @@ def dashboard(request, file_id=None):
             # 构造结果列表
             results = []
             unique_codes = set()
+            filename_base = os.path.splitext(uploaded_file.original_filename)[0]
+            filename_base = re.sub(r'\(\d+\)$', '', filename_base)
+            parts = filename_base.split('+')
+            zip_order_code = parts[0] if len(parts) > 0 else ''
+            zip_group_name = parts[1] if len(parts) > 1 else ''
+            zip_address = '+'.join(parts[2:]) if len(parts) > 2 else ''
+            if uploaded_file.group_name:
+                zip_group_name = uploaded_file.group_name
+            if uploaded_file.address:
+                zip_address = uploaded_file.address
             
             for info in extracted_infos:
                 # 确定显示单号
@@ -155,10 +168,16 @@ def dashboard(request, file_id=None):
                     'equipment_items': info.equipment_items,
                     'verification_passed': info.verification_passed,
                     'document_content': info.document_content,
+                    'zip_order_code': zip_order_code,
+                    'zip_group_name': zip_group_name,
+                    'zip_address': zip_address,
                 })
             
             context['results'] = results
             context['unique_codes'] = sorted(list(unique_codes))
+            context['zip_order_code'] = zip_order_code
+            context['zip_group_name'] = zip_group_name
+            context['zip_address'] = zip_address
             
         except UploadedFile.DoesNotExist:
             pass

@@ -271,8 +271,8 @@
                     {% csrf_token %}
                     <div id="drop-area" class="upload-area-mini" onclick="document.getElementById('file_input').click()">
                         <div class="upload-icon">☁️</div>
-                        <div class="upload-text">点击或拖拽文件上传<br><span style="font-size:11px;color:#999">支持 .zip, .doc, .docx</span></div>
-                        <input type="file" id="file_input" name="files" accept=".zip,.doc,.docx" multiple onchange="document.getElementById('upload-form').submit()">
+                        <div class="upload-text">点击或拖拽文件上传<br><span style="font-size:11px;color:#999">支持 .zip</span></div>
+                        <input type="file" id="file_input" name="files" accept=".zip" multiple onchange="document.getElementById('upload-form').submit()">
                     </div>
                 </form>
             </div>
@@ -314,7 +314,7 @@
                 <div class="result-card" data-code="{{ result.display_code }}">
                     <div class="card-header">
                         <div class="card-title">
-                            {% if result.order_code %}{{ result.order_code }}{% else %}{{ result.file_name }}{% endif %}
+                            {% if result.order_code %}<span class="clickable-value" onclick="copyPlainText(this)">{{ result.order_code }}</span>{% else %}{{ result.file_name }}{% endif %}
                         </div>
                         <div style="font-size:12px; color:#999">{{ result.file_name }}</div>
                     </div>
@@ -324,6 +324,16 @@
                             ⚠️ 提取失败: {{ result.error }}
                         </div>
                     {% else %}
+                        <div class="info-grid" style="margin-top:-5px;">
+                            <div class="info-box">
+                                <div class="info-label">集团名称(来自ZIP文件名)</div>
+                                <div class="info-value">{{ result.zip_group_name|default:"-" }}</div>
+                            </div>
+                            <div class="info-box">
+                                <div class="info-label">地址(来自ZIP文件名)</div>
+                                <div class="info-value">{{ result.zip_address|default:"-" }}</div>
+                            </div>
+                        </div>
                         <div class="info-grid">
                             <div class="info-box">
                                 <div class="info-label">总体估算价格</div>
@@ -436,12 +446,33 @@
         dropArea.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
             if (files.length > 0) {
-                document.getElementById('file_input').files = files;
+                const zips = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.zip'));
+                if (zips.length === 0) {
+                    alert('仅支持ZIP文件');
+                    return;
+                }
+                const dt = new DataTransfer();
+                zips.forEach(f => dt.items.add(f));
+                const input = document.getElementById('file_input');
+                input.files = dt.files;
                 document.getElementById('upload-form').submit();
             }
         });
 
         // 复制功能
+        function copyPlainText(el) {
+            const text = el.innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const original = el.innerText;
+                el.innerText = "已复制!";
+                el.style.color = "#4CAF50";
+                setTimeout(() => {
+                    el.innerText = original;
+                    el.style.color = "";
+                }, 1000);
+            });
+        }
+        
         function copyText(el) {
             const text = el.innerText.replace(/[元米]/g, '').trim();
             navigator.clipboard.writeText(text).then(() => {

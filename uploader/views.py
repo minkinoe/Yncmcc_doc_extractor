@@ -5,7 +5,8 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib import messages
 from django.utils import timezone
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
 from wsgiref.util import FileWrapper
 import mimetypes
 from .utils import extract_info_from_zip, extract_info_from_word
@@ -60,7 +61,8 @@ def dashboard(request, file_id=None):
                     file_size=file.size,
                     file_type='zip',
                     group_name=zip_group_name or None,
-                    address=zip_address or None
+                    address=zip_address or None,
+                    is_marked=True
                 )
                 uploaded_file.file = file
                 uploaded_file.save()
@@ -183,6 +185,18 @@ def dashboard(request, file_id=None):
             pass
 
     return render(request, 'uploader/dashboard.html', context)
+
+
+@require_POST
+def toggle_upload_mark(request, file_id):
+    try:
+        uploaded_file = UploadedFile.objects.get(id=file_id)
+    except UploadedFile.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
+
+    uploaded_file.is_marked = not uploaded_file.is_marked
+    uploaded_file.save(update_fields=['is_marked'])
+    return JsonResponse({'ok': True, 'is_marked': uploaded_file.is_marked})
 
 def upload_file(request):
     """(已弃用) 文件上传页面"""

@@ -195,6 +195,15 @@ def read_word_document(file_path):
 
 
 def normalize_text_for_extraction(text):
+    """
+    对文本进行归一化处理，移除所有空白字符（包括空格、制表符、换行符等）。
+    
+    参数:
+    text (str): 待处理的文本
+    
+    返回:
+    str: 归一化后的文本
+    """
     if not text:
         return ''
     return re.sub(r'[\s\u00A0\u3000\u2000-\u200B\u202F\u205F\uFEFF]+', '', text)

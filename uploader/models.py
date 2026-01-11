@@ -19,6 +19,7 @@ class UploadedFile(models.Model):
     file_type = models.CharField(max_length=50, help_text="文件类型，如zip、doc、docx")
     group_name = models.CharField(max_length=255, null=True, blank=True, help_text="集团名称（来自ZIP文件名）")
     address = models.CharField(max_length=255, null=True, blank=True, help_text="地址（来自ZIP文件名）")
+    is_marked = models.BooleanField(default=True, help_text="是否标记（标星）")
     
     # 处理信息
     uploaded_at = models.DateTimeField(auto_now_add=True)

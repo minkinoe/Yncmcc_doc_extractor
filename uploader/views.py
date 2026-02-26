@@ -236,7 +236,7 @@ def get_township_from_address(address):
     try:
         geo = _amap_get_json(
             'https://restapi.amap.com/v3/geocode/geo',
-            {'key': amap_key, 'address': normalized_address},
+            {'key': amap_key, 'address': normalized_address, 'city': '昆明'},
         )
         if str(geo.get('status')) != '1':
             return None

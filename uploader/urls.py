@@ -11,6 +11,7 @@ urlpatterns = [
     path('extracted-construction-status/<int:info_id>/', views.update_construction_status, name='update_construction_status'),
     path('extracted-resource-address/<int:info_id>/', views.update_resource_address, name='update_resource_address'),
     path('extracted-construction-remark/<int:info_id>/', views.add_construction_remark, name='add_construction_remark'),
+    path('delete-construction-remark/<int:remark_id>/', views.delete_construction_remark, name='delete_construction_remark'),
     path('upload/', views.upload_file, name='upload_file'), # Keep for compatibility but redirects
     path('result/', views.show_result, name='show_result'),
     path('history/', views.file_history, name='file_history'),

@@ -198,8 +198,21 @@
             border-bottom: 1px solid #eee;
         }
         .remark-entry:last-child { border-bottom: none; }
+        .remark-entry { position: relative; }
         .remark-time { font-size: 11px; color: #999; min-width: 85px; }
-        .remark-content { font-size: 12px; color: #333; line-height: 1.4; }
+        .remark-content { font-size: 12px; color: #333; line-height: 1.4; flex: 1; }
+        .remark-actions { opacity: 0; transition: opacity 0.2s; display: flex; align-items: center; }
+        .remark-entry:hover .remark-actions { opacity: 1; }
+        .delete-remark-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+        }
+        .delete-remark-btn:hover { color: var(--error-color); }
 
         .remark-input-group { display: flex; gap: 8px; }
         
@@ -715,9 +728,12 @@
                                 <div style="font-size:13px; font-weight:600; color:#666; margin-bottom:8px;">📝 备注记录</div>
                                 <div class="remark-box">
                                      {% for remark in result.remarks %}
-                                        <div class="remark-entry">
+                                        <div class="remark-entry" data-remark-id="{{ remark.id }}">
                                             <div class="remark-time">{{ remark.created_at }}</div>
                                             <div class="remark-content">{{ remark.content }}</div>
+                                            <div class="remark-actions">
+                                                <button onclick="deleteRemark(this, '{{ remark.id }}')" class="delete-remark-btn" title="删除备注">×</button>
+                                            </div>
                                         </div>
                                      {% empty %}
                                         <div style="text-align:center; color:#ccc; font-size:12px; padding:10px;">暂无备注</div>
@@ -1087,14 +1103,45 @@
 
                 const item = document.createElement('div');
                 item.className = 'remark-entry';
+                item.dataset.remarkId = data.remark.id;
                 item.innerHTML = `
-                    <div class="remark-time">${data.created_at}</div>
-                    <div class="remark-content">${data.content}</div>
+                    <div class="remark-time">${data.remark.created_at}</div>
+                    <div class="remark-content">${data.remark.content}</div>
+                    <div class="remark-actions">
+                        <button onclick="deleteRemark(this, '${data.remark.id}')" class="delete-remark-btn" title="删除备注">×</button>
+                    </div>
                 `;
                 list.appendChild(item);
                 list.scrollTop = list.scrollHeight;
                 
             }).catch(() => {});
+        }
+        
+        function deleteRemark(btn, remarkId) {
+            if (!confirm('确定要删除这条备注吗？')) return;
+            
+            const entry = btn.closest('.remark-entry');
+            if (!entry) return;
+            
+            fetch("{% url 'delete_construction_remark' 0 %}".replace('/0/', `/${remarkId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                }
+            }).then(r => r.json()).then(data => {
+                if (data && data.ok) {
+                    const box = entry.parentElement;
+                    entry.remove();
+                    if (box.children.length === 0) {
+                        box.innerHTML = '<div style="text-align:center; color:#ccc; font-size:12px; padding:10px;">暂无备注</div>';
+                    }
+                } else {
+                    alert('删除失败');
+                }
+            }).catch(() => {
+                alert('删除失败，请稍后重试');
+            });
         }
 
         // 文本切换

@@ -473,7 +473,7 @@ def dashboard(request, file_id=None):
                     'resource_entry_at': format_beijing_datetime(info.resource_entry_at),
                     'construction_completed_at': format_beijing_datetime(info.construction_completed_at),
                     'resource_address': info.resource_address,
-                    'remarks': [{'id': r.id, 'content': r.content, 'created_at': format_beijing_datetime(r.created_at)} for r in info.remarks.all()],
+                    'remarks': [{'id': r.id, 'content': r.content, 'created_at': format_beijing_datetime(r.created_at)} for r in info.remarks.order_by('created_at')],
                     'extraction_status': info.extraction_status,
                     'error': info.extraction_error,
                     'maintenance_fee': info.maintenance_fee,
@@ -715,6 +715,16 @@ def add_construction_remark(request, info_id):
             'created_at': format_beijing_datetime(remark.created_at),
         }
     })
+
+@require_POST
+def delete_construction_remark(request, remark_id):
+    """删除建设单备注"""
+    try:
+        remark = ConstructionRemark.objects.get(id=remark_id)
+        remark.delete()
+        return JsonResponse({'ok': True})
+    except ConstructionRemark.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
 
 def upload_file(request):
     """(已弃用) 文件上传页面"""

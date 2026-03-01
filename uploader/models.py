@@ -49,6 +49,13 @@ class ExtractedInfo(models.Model):
     construction_order_code = models.CharField(max_length=100, help_text="建设单号", null=True, blank=True, db_index=True)
     construction_email_sent = models.BooleanField(default=False, help_text="是否发送建设邮件")
     construction_email_sent_at = models.DateTimeField(null=True, blank=True, help_text="建设邮件发送勾选时间")
+    
+    # 进度追踪
+    field_construction_at = models.DateTimeField(null=True, blank=True, help_text="现场施工时间")
+    resource_entry_at = models.DateTimeField(null=True, blank=True, help_text="资源录入时间")
+    resource_address = models.CharField(max_length=255, null=True, blank=True, help_text="资源地址")
+    construction_completed_at = models.DateTimeField(null=True, blank=True, help_text="建设完成时间")
+    
     document_name = models.CharField(max_length=255, help_text="文档文件名", default="")
     document_content = models.TextField(help_text="从Word中提取的完整文本", null=True, blank=True)
     extraction_status = models.CharField(max_length=20, default="待处理")
@@ -86,3 +93,14 @@ class ExtractedInfo(models.Model):
             models.Index(fields=['order_code']),
             models.Index(fields=['uploaded_file']),
         ]
+
+
+class ConstructionRemark(models.Model):
+    """建设单备注"""
+    extracted_info = models.ForeignKey(ExtractedInfo, on_delete=models.CASCADE, related_name='remarks')
+    content = models.TextField(help_text="备注内容")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+

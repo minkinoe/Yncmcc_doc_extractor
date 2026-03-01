@@ -469,6 +469,11 @@ def dashboard(request, file_id=None):
                     'construction_order_code': construction_order_code,
                     'construction_email_sent': info.construction_email_sent,
                     'construction_email_sent_at': format_beijing_datetime(info.construction_email_sent_at),
+                    'field_construction_at': format_beijing_datetime(info.field_construction_at),
+                    'resource_entry_at': format_beijing_datetime(info.resource_entry_at),
+                    'construction_completed_at': format_beijing_datetime(info.construction_completed_at),
+                    'resource_address': info.resource_address,
+                    'remarks': [{'id': r.id, 'content': r.content, 'created_at': format_beijing_datetime(r.created_at)} for r in info.remarks.all()],
                     'extraction_status': info.extraction_status,
                     'error': info.extraction_error,
                     'maintenance_fee': info.maintenance_fee,
@@ -586,6 +591,129 @@ def update_construction_email_sent(request, info_id):
         'ok': True,
         'construction_email_sent': info.construction_email_sent,
         'construction_email_sent_at': format_beijing_datetime(info.construction_email_sent_at),
+    })
+
+from .models import UploadedFile, ExtractedInfo, ConstructionRemark
+
+# ... (existing imports)
+
+@require_POST
+def update_construction_status(request, info_id):
+    """更新建设单进度状态"""
+    try:
+        info = ExtractedInfo.objects.get(id=info_id)
+    except ExtractedInfo.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
+
+    try:
+        payload = json.loads((request.body or b'{}').decode('utf-8', errors='replace'))
+    except json.JSONDecodeError:
+        payload = {}
+
+    status_type = payload.get('type')  # field_construction, resource_entry, completed
+    action = payload.get('action')     # set, unset
+
+    now = timezone.now()
+    updated_fields = []
+
+    if status_type == 'field_construction':
+        if action == 'set':
+            info.field_construction_at = now
+            updated_fields.append('field_construction_at')
+        else:
+            # Unset field construction -> Unset EVERYTHING
+            info.field_construction_at = None
+            info.resource_entry_at = None
+            info.construction_completed_at = None
+            updated_fields.extend(['field_construction_at', 'resource_entry_at', 'construction_completed_at'])
+        
+    elif status_type == 'resource_entry':
+        if action == 'set':
+            info.resource_entry_at = now
+            updated_fields.append('resource_entry_at')
+            # Auto-set previous step if missing
+            if not info.field_construction_at:
+                info.field_construction_at = now
+                updated_fields.append('field_construction_at')
+        else:
+            # Unset resource entry -> Unset completed
+            info.resource_entry_at = None
+            info.construction_completed_at = None
+            updated_fields.extend(['resource_entry_at', 'construction_completed_at'])
+        
+    elif status_type == 'completed':
+        if action == 'set':
+            # 校验资源地址
+            if not info.resource_address:
+                return JsonResponse({'ok': False, 'error': 'resource_address_required', 'msg': '请先填写资源地址'}, status=400)
+            info.construction_completed_at = now
+            updated_fields.append('construction_completed_at')
+            # Auto-set previous steps if missing (理论上前端会限制，这里做个兜底)
+            if not info.resource_entry_at:
+                info.resource_entry_at = now
+                updated_fields.append('resource_entry_at')
+            if not info.field_construction_at:
+                info.field_construction_at = now
+                updated_fields.append('field_construction_at')
+        else:
+            info.construction_completed_at = None
+            updated_fields.append('construction_completed_at')
+    
+    if updated_fields:
+        info.save(update_fields=updated_fields)
+
+    return JsonResponse({
+        'ok': True,
+        'field_construction_at': format_beijing_datetime(info.field_construction_at),
+        'resource_entry_at': format_beijing_datetime(info.resource_entry_at),
+        'construction_completed_at': format_beijing_datetime(info.construction_completed_at),
+    })
+
+@require_POST
+def update_resource_address(request, info_id):
+    """更新资源地址"""
+    try:
+        info = ExtractedInfo.objects.get(id=info_id)
+    except ExtractedInfo.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
+
+    try:
+        payload = json.loads((request.body or b'{}').decode('utf-8', errors='replace'))
+    except json.JSONDecodeError:
+        payload = {}
+
+    address = payload.get('resource_address', '').strip()
+    info.resource_address = address
+    info.save(update_fields=['resource_address'])
+
+    return JsonResponse({'ok': True, 'resource_address': info.resource_address})
+
+@require_POST
+def add_construction_remark(request, info_id):
+    """添加建设单备注"""
+    try:
+        info = ExtractedInfo.objects.get(id=info_id)
+    except ExtractedInfo.DoesNotExist:
+        return JsonResponse({'ok': False, 'error': 'not_found'}, status=404)
+
+    try:
+        payload = json.loads((request.body or b'{}').decode('utf-8', errors='replace'))
+    except json.JSONDecodeError:
+        payload = {}
+
+    content = payload.get('content', '').strip()
+    if not content:
+        return JsonResponse({'ok': False, 'error': 'empty_content'}, status=400)
+
+    remark = ConstructionRemark.objects.create(extracted_info=info, content=content)
+
+    return JsonResponse({
+        'ok': True,
+        'remark': {
+            'id': remark.id,
+            'content': remark.content,
+            'created_at': format_beijing_datetime(remark.created_at),
+        }
     })
 
 def upload_file(request):

@@ -18,6 +18,203 @@
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* Construction Section Styles */
+        .construction-section {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .construction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .construction-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .icon-btn:hover { opacity: 1; }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--success-color); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Stepper */
+        .stepper-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            padding: 0 20px;
+            margin-bottom: 25px;
+        }
+        
+        .stepper-container.disabled-section {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .stepper-line-bg {
+            position: absolute;
+            top: 18px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background: #eee;
+            z-index: 1;
+        }
+
+        .step-item {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            width: 100px;
+            transition: all 0.3s;
+        }
+
+        .step-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #999;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .step-item:hover .step-circle { border-color: var(--primary-color); color: var(--primary-color); }
+
+        .step-item.active .step-circle {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+
+        .step-label { font-size: 13px; font-weight: 600; color: #666; margin-bottom: 2px; }
+        .step-item.active .step-label { color: var(--primary-dark); }
+        
+        .step-time { font-size: 11px; color: #999; height: 14px; }
+
+        /* Resource Address Panel */
+        .resource-address-panel {
+            background: #f0f7ff;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .styled-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+        .styled-input:focus { border-color: var(--primary-color); outline: none; }
+
+        /* Remarks */
+        .remarks-container {
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+        
+        .remark-box {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .remark-entry {
+            display: flex;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .remark-entry:last-child { border-bottom: none; }
+        .remark-time { font-size: 11px; color: #999; min-width: 85px; }
+        .remark-content { font-size: 12px; color: #333; line-height: 1.4; }
+
+        .remark-input-group { display: flex; gap: 8px; }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+        .btn-primary:hover { background: var(--primary-dark); }
         
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
@@ -450,23 +647,93 @@
                         {% endif %}
 
                         {% if result.document_content %}
-                        <div class="text-content-toggle">
-                            <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                                <div style="font-size:12px; color:#666;">建设单号</div>
-                                <div class="construction-order-code-value" style="font-size:14px; font-weight:600; color:#333;">{{ result.construction_order_code|default:"-" }}</div>
-                                <button onclick="editConstructionOrderCode(event)" style="padding:2px 8px; font-size:12px; border:1px solid #ddd; border-radius:10px; background:white; cursor:pointer;">编辑</button>
-                                <label style="display:flex; align-items:center; gap:6px; font-size:12px; color:#666;">
-                                    <input class="construction-email-sent-checkbox" type="checkbox" {% if result.construction_email_sent %}checked{% endif %} onchange="toggleConstructionEmailSent(event)">
-                                    是否发送建设邮件
-                                </label>
-                                {% if result.construction_email_sent_at %}
-                                    <div class="construction-email-sent-at" style="font-size:12px; color:#999;">{{ result.construction_email_sent_at }}</div>
-                                {% else %}
-                                    <div class="construction-email-sent-at" style="font-size:12px; color:#999;"></div>
-                                {% endif %}
+                        
+                        <!-- Construction Management Section -->
+                        <div class="construction-section">
+                            <div class="construction-header">
+                                <div class="construction-title">
+                                    <span>🏗️ 建设管理</span>
+                                    <div style="display:flex; align-items:center; gap:8px; margin-left:15px; font-weight:normal; font-size:13px;">
+                                        <span style="color:#666;">建设单号:</span>
+                                        <span class="construction-order-code-value clickable-value" onclick="copyPlainText(this)" style="font-weight:600; font-family:monospace;">{{ result.construction_order_code|default:"-" }}</span>
+                                        <button onclick="editConstructionOrderCode(event)" class="icon-btn" title="修改建设单号">✏️</button>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:15px;">
+                                    <label class="toggle-switch-label" style="font-size:13px; color:#555; display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                        <span>发送建设邮件</span>
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" class="construction-email-sent-checkbox" {% if result.construction_email_sent %}checked{% endif %} onchange="toggleConstructionEmailSent(event)">
+                                            <span class="slider"></span>
+                                        </div>
+                                    </label>
+                                    <div class="construction-email-sent-at" style="font-size:12px; color:#999; min-width:110px; text-align:right;">
+                                        {{ result.construction_email_sent_at|default:"" }}
+                                    </div>
+                                </div>
                             </div>
-                            <button onclick="toggleText(this)" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-size:13px; font-weight:500;">
-                                ▶ 显示完整文本内容
+
+                            <!-- Stepper -->
+                            <div class="stepper-container {% if not result.construction_email_sent %}disabled-section{% endif %}">
+                                <div class="stepper-line-bg"></div>
+                                <!-- Step 1 -->
+                                <div class="step-item field-step {% if result.field_construction_at %}active{% endif %}" onclick="toggleProgress(this, 'field_construction')">
+                                    <div class="step-circle">1</div>
+                                    <div class="step-content">
+                                        <div class="step-label">现场施工</div>
+                                        <div class="step-time">{{ result.field_construction_at|default:"" }}</div>
+                                    </div>
+                                </div>
+                                <!-- Step 2 -->
+                                <div class="step-item resource-step {% if result.resource_entry_at %}active{% endif %}" onclick="toggleProgress(this, 'resource_entry')">
+                                    <div class="step-circle">2</div>
+                                    <div class="step-content">
+                                        <div class="step-label">资源录入</div>
+                                        <div class="step-time">{{ result.resource_entry_at|default:"" }}</div>
+                                    </div>
+                                </div>
+                                <!-- Step 3 -->
+                                <div class="step-item completed-step {% if result.construction_completed_at %}active{% endif %}" onclick="toggleProgress(this, 'completed')">
+                                    <div class="step-circle">3</div>
+                                    <div class="step-content">
+                                        <div class="step-label">完成</div>
+                                        <div class="step-time">{{ result.construction_completed_at|default:"" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resource Address (Collapsible/Conditional) -->
+                            <div class="resource-address-panel" style="display: {% if result.resource_entry_at %}block{% else %}none{% endif %};">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <span style="font-size:13px; font-weight:600; color:#1976D2;">📍 资源地址</span>
+                                    <input type="text" class="styled-input resource-address-input" placeholder="请输入资源地址..." value="{{ result.resource_address|default:'' }}" onchange="updateResourceAddress(this)">
+                                </div>
+                            </div>
+
+                            <!-- Remarks -->
+                            <div class="remarks-container">
+                                <div style="font-size:13px; font-weight:600; color:#666; margin-bottom:8px;">📝 备注记录</div>
+                                <div class="remark-box">
+                                     {% for remark in result.remarks %}
+                                        <div class="remark-entry">
+                                            <div class="remark-time">{{ remark.created_at }}</div>
+                                            <div class="remark-content">{{ remark.content }}</div>
+                                        </div>
+                                     {% empty %}
+                                        <div style="text-align:center; color:#ccc; font-size:12px; padding:10px;">暂无备注</div>
+                                     {% endfor %}
+                                </div>
+                                <div class="remark-input-group">
+                                    <input type="text" class="styled-input remark-input" placeholder="添加新备注...">
+                                    <button onclick="addRemark(this)" class="btn-primary">发送</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Content Toggle -->
+                        <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;">
+                            <button onclick="toggleText(this)" style="background:none; border:none; color:var(--primary-color); cursor:pointer; font-size:13px; font-weight:500; display:flex; align-items:center; gap:5px;">
+                                <span>▶</span> 显示完整文本内容
                             </button>
                             <div class="text-content-area">
                                 {{ result.document_content }}
@@ -639,6 +906,17 @@
             }).catch(() => {});
         }
 
+        function toggleText(btn) {
+            const area = btn.nextElementSibling;
+            if (area.style.display === 'none' || !area.style.display) {
+                area.style.display = 'block';
+                btn.innerHTML = '<span>▼</span> 隐藏完整文本内容';
+            } else {
+                area.style.display = 'none';
+                btn.innerHTML = '<span>▶</span> 显示完整文本内容';
+            }
+        }
+
         function toggleConstructionEmailSent(ev) {
             ev.stopPropagation();
             const checkbox = ev.target;
@@ -661,6 +939,161 @@
                 checkbox.checked = data.construction_email_sent === true;
                 const atEl = card.querySelector('.construction-email-sent-at');
                 if (atEl) atEl.innerText = data.construction_email_sent_at ? data.construction_email_sent_at : '';
+                
+                // Toggle progress stepper
+                const stepper = card.querySelector('.stepper-container');
+                if (stepper) {
+                    if (data.construction_email_sent === true) {
+                        stepper.classList.remove('disabled-section');
+                    } else {
+                        stepper.classList.add('disabled-section');
+                    }
+                    updateProgressButtonsState(card);
+                }
+            }).catch(() => {});
+        }
+        
+        function updateProgressButtonsState(card) {
+            const fieldStep = card.querySelector('.field-step');
+            const resourceStep = card.querySelector('.resource-step');
+            const completedStep = card.querySelector('.completed-step');
+            const addressPanel = card.querySelector('.resource-address-panel');
+            const addressInput = card.querySelector('.resource-address-input');
+            
+            // Base state: email sent must be true (handled by container class disabled-section)
+            const stepper = card.querySelector('.stepper-container');
+            if (stepper.classList.contains('disabled-section')) return;
+            
+            // Resource Entry: Enabled? (Stepper logic allows clicking, validation is inside toggleProgress)
+            // But visually we might want to show disabled state if previous step not done?
+            // Actually my new design doesn't explicitly disable steps via CSS class 'disabled' except for the whole section.
+            // But we can add opacity if we want.
+            // For now, let's just handle the Resource Address Panel visibility.
+            
+            const isResourceDone = resourceStep.classList.contains('active');
+            addressPanel.style.display = isResourceDone ? 'block' : 'none';
+        }
+
+        function updateResourceAddress(input) {
+            const card = input.closest('.result-card');
+            if (!card) return;
+            const infoId = card.dataset.infoId;
+            if (!infoId) return;
+            
+            const address = input.value.trim();
+            
+            fetch("{% url 'update_resource_address' 0 %}".replace('/0/', `/${infoId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ resource_address: address })
+            }).then(r => r.json()).then(data => {
+                if (!data || !data.ok) return;
+                // Update buttons state after address change
+                updateProgressButtonsState(card);
+            }).catch(() => {});
+        }
+
+        function toggleProgress(btn, type) {
+            const card = btn.closest('.result-card');
+            if (!card) return;
+            const infoId = card.dataset.infoId;
+            if (!infoId) return;
+            
+            const isSet = !btn.classList.contains('active');
+            
+            // Check prerequisites before making request (frontend validation)
+            if (isSet) {
+                if (type === 'completed') {
+                    // Still require resource address
+                    const addressInput = card.querySelector('.resource-address-input');
+                    if (!addressInput.value.trim()) {
+                        alert('请先填写资源地址');
+                        addressInput.focus();
+                        return;
+                    }
+                }
+            }
+            
+            fetch("{% url 'update_construction_status' 0 %}".replace('/0/', `/${infoId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ type: type, action: isSet ? 'set' : 'unset' })
+            }).then(r => r.json()).then(data => {
+                if (!data || !data.ok) {
+                    if (data && data.msg) alert(data.msg);
+                    return;
+                }
+                
+                // Update ALL steps state based on backend response
+                const fieldStep = card.querySelector('.field-step');
+                const resourceStep = card.querySelector('.resource-step');
+                const completedStep = card.querySelector('.completed-step');
+                
+                updateButtonState(fieldStep, data.field_construction_at);
+                updateButtonState(resourceStep, data.resource_entry_at);
+                updateButtonState(completedStep, data.construction_completed_at);
+                
+                // Update derived states
+                updateProgressButtonsState(card);
+                
+            }).catch(() => {});
+        }
+
+        function updateButtonState(btn, timeStr) {
+            if (!btn) return;
+            const timeEl = btn.querySelector('.step-time');
+            if (timeStr) {
+                btn.classList.add('active');
+                if (timeEl) timeEl.innerText = timeStr;
+            } else {
+                btn.classList.remove('active');
+                if (timeEl) timeEl.innerText = '';
+            }
+        }
+        
+        function addRemark(btn) {
+            const card = btn.closest('.result-card');
+            if (!card) return;
+            const infoId = card.dataset.infoId;
+            if (!infoId) return;
+            
+            const input = card.querySelector('.remark-input');
+            const content = input.value.trim();
+            if (!content) return;
+            
+            fetch("{% url 'add_construction_remark' 0 %}".replace('/0/', `/${infoId}/`), {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ content: content })
+            }).then(r => r.json()).then(data => {
+                if (!data || !data.ok) return;
+                
+                input.value = '';
+                const list = card.querySelector('.remark-box');
+                
+                // Remove empty state if exists
+                if (list.children.length === 1 && list.children[0].innerText === '暂无备注') {
+                    list.innerHTML = '';
+                }
+
+                const item = document.createElement('div');
+                item.className = 'remark-entry';
+                item.innerHTML = `
+                    <div class="remark-time">${data.created_at}</div>
+                    <div class="remark-content">${data.content}</div>
+                `;
+                list.appendChild(item);
+                list.scrollTop = list.scrollHeight;
+                
             }).catch(() => {});
         }
 

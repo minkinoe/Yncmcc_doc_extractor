@@ -1,0 +1,1020 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>uploader package &mdash; WordExtractor 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="uploader.migrations package" href="uploader.migrations.html" />
+    <link rel="prev" title="uploader" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            WordExtractor
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">uploader</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">uploader package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html">uploader.migrations package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.admin">uploader.admin module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.apps">uploader.apps module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.apps.UploaderConfig"><code class="docutils literal notranslate"><span class="pre">UploaderConfig</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.models">uploader.models module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.models.ConstructionRemark"><code class="docutils literal notranslate"><span class="pre">ConstructionRemark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.models.ExtractedInfo"><code class="docutils literal notranslate"><span class="pre">ExtractedInfo</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.models.UploadedFile"><code class="docutils literal notranslate"><span class="pre">UploadedFile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.models.file_upload_path"><code class="docutils literal notranslate"><span class="pre">file_upload_path()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.tests">uploader.tests module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.urls">uploader.urls module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.utils">uploader.utils module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.debug_keyword_search"><code class="docutils literal notranslate"><span class="pre">debug_keyword_search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_broadband_maintenance_fee"><code class="docutils literal notranslate"><span class="pre">extract_broadband_maintenance_fee()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_broadband_service_fee"><code class="docutils literal notranslate"><span class="pre">extract_broadband_service_fee()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_fiber_info"><code class="docutils literal notranslate"><span class="pre">extract_fiber_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_info_from_word"><code class="docutils literal notranslate"><span class="pre">extract_info_from_word()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_info_from_zip"><code class="docutils literal notranslate"><span class="pre">extract_info_from_zip()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_maintenance_fee"><code class="docutils literal notranslate"><span class="pre">extract_maintenance_fee()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_overall_total_price"><code class="docutils literal notranslate"><span class="pre">extract_overall_total_price()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_price_info"><code class="docutils literal notranslate"><span class="pre">extract_price_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_terminal_fee"><code class="docutils literal notranslate"><span class="pre">extract_terminal_fee()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_text_with_win32com"><code class="docutils literal notranslate"><span class="pre">extract_text_with_win32com()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.extract_total_price"><code class="docutils literal notranslate"><span class="pre">extract_total_price()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.normalize_text_for_extraction"><code class="docutils literal notranslate"><span class="pre">normalize_text_for_extraction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.read_word_document"><code class="docutils literal notranslate"><span class="pre">read_word_document()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.utils.verify_calculation"><code class="docutils literal notranslate"><span class="pre">verify_calculation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader.views">uploader.views module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.add_construction_remark"><code class="docutils literal notranslate"><span class="pre">add_construction_remark()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.dashboard"><code class="docutils literal notranslate"><span class="pre">dashboard()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.delete_construction_remark"><code class="docutils literal notranslate"><span class="pre">delete_construction_remark()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.download_file"><code class="docutils literal notranslate"><span class="pre">download_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.file_detail"><code class="docutils literal notranslate"><span class="pre">file_detail()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.file_history"><code class="docutils literal notranslate"><span class="pre">file_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.format_beijing_datetime"><code class="docutils literal notranslate"><span class="pre">format_beijing_datetime()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.get_construction_unit_from_township"><code class="docutils literal notranslate"><span class="pre">get_construction_unit_from_township()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.get_default_construction_order_code"><code class="docutils literal notranslate"><span class="pre">get_default_construction_order_code()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.get_township_from_address"><code class="docutils literal notranslate"><span class="pre">get_township_from_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.load_street_to_construction_unit_mapping"><code class="docutils literal notranslate"><span class="pre">load_street_to_construction_unit_mapping()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.show_result"><code class="docutils literal notranslate"><span class="pre">show_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.toggle_upload_mark"><code class="docutils literal notranslate"><span class="pre">toggle_upload_mark()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.update_construction_email_sent"><code class="docutils literal notranslate"><span class="pre">update_construction_email_sent()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.update_construction_order_code"><code class="docutils literal notranslate"><span class="pre">update_construction_order_code()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.update_construction_status"><code class="docutils literal notranslate"><span class="pre">update_construction_status()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.update_construction_unit"><code class="docutils literal notranslate"><span class="pre">update_construction_unit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.update_resource_address"><code class="docutils literal notranslate"><span class="pre">update_resource_address()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#uploader.views.upload_file"><code class="docutils literal notranslate"><span class="pre">upload_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-uploader">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WordExtractor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">uploader</a></li>
+      <li class="breadcrumb-item active">uploader package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/uploader.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="uploader-package">
+<h1>uploader package<a class="headerlink" href="#uploader-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="uploader.migrations.html">uploader.migrations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0001_initial">uploader.migrations.0001_initial module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0001_initial.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0001_initial.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0001_initial.Migration.initial"><code class="docutils literal notranslate"><span class="pre">Migration.initial</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0001_initial.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0002_rename_document_filename">uploader.migrations.0002_rename_document_filename module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0002_rename_document_filename.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0002_rename_document_filename.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0002_rename_document_filename.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name">uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0004_uploadedfile_is_marked">uploader.migrations.0004_uploadedfile_is_marked module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0004_uploadedfile_is_marked.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0004_uploadedfile_is_marked.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0004_uploadedfile_is_marked.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0005_alter_uploadedfile_is_marked">uploader.migrations.0005_alter_uploadedfile_is_marked module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0005_alter_uploadedfile_is_marked.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0005_alter_uploadedfile_is_marked.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0005_alter_uploadedfile_is_marked.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0006_uploadedfile_township">uploader.migrations.0006_uploadedfile_township module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0006_uploadedfile_township.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0006_uploadedfile_township.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0006_uploadedfile_township.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0007_uploadedfile_construction_unit">uploader.migrations.0007_uploadedfile_construction_unit module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0007_uploadedfile_construction_unit.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0007_uploadedfile_construction_unit.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0007_uploadedfile_construction_unit.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0008_extractedinfo_construction_order_code">uploader.migrations.0008_extractedinfo_construction_order_code module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0008_extractedinfo_construction_order_code.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0008_extractedinfo_construction_order_code.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0008_extractedinfo_construction_order_code.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0009_extractedinfo_construction_email_sent">uploader.migrations.0009_extractedinfo_construction_email_sent module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0009_extractedinfo_construction_email_sent.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0009_extractedinfo_construction_email_sent.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0009_extractedinfo_construction_email_sent.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0010_extractedinfo_construction_completed_at_and_more">uploader.migrations.0010_extractedinfo_construction_completed_at_and_more module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations.0011_extractedinfo_resource_address">uploader.migrations.0011_extractedinfo_resource_address module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0011_extractedinfo_resource_address.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0011_extractedinfo_resource_address.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="uploader.migrations.html#uploader.migrations.0011_extractedinfo_resource_address.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="uploader.migrations.html#module-uploader.migrations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-uploader.admin">
+<span id="uploader-admin-module"></span><h2>uploader.admin module<a class="headerlink" href="#module-uploader.admin" title="Link to this heading"></a></h2>
+</section>
+<section id="module-uploader.apps">
+<span id="uploader-apps-module"></span><h2>uploader.apps module<a class="headerlink" href="#module-uploader.apps" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.apps.UploaderConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.apps.</span></span><span class="sig-name descname"><span class="pre">UploaderConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/apps.html#UploaderConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.apps.UploaderConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.apps.UploaderConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.BigAutoField'</span></span><a class="headerlink" href="#uploader.apps.UploaderConfig.default_auto_field" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.apps.UploaderConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'uploader'</span></span><a class="headerlink" href="#uploader.apps.UploaderConfig.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.models">
+<span id="uploader-models-module"></span><h2>uploader.models module<a class="headerlink" href="#module-uploader.models" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.models.</span></span><span class="sig-name descname"><span class="pre">ConstructionRemark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/models.html#ConstructionRemark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.models.ConstructionRemark" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>建设单备注</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.content">
+<span class="sig-name descname"><span class="pre">content</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.content" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.created_at">
+<span class="sig-name descname"><span class="pre">created_at</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.created_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.extracted_info">
+<span class="sig-name descname"><span class="pre">extracted_info</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.extracted_info" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.extracted_info_id">
+<span class="sig-name descname"><span class="pre">extracted_info_id</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.extracted_info_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.get_next_by_created_at">
+<span class="sig-name descname"><span class="pre">get_next_by_created_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">created_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uploader.models.ConstructionRemark.get_next_by_created_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.get_previous_by_created_at">
+<span class="sig-name descname"><span class="pre">get_previous_by_created_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">created_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uploader.models.ConstructionRemark.get_previous_by_created_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ConstructionRemark.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#uploader.models.ConstructionRemark.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.models.</span></span><span class="sig-name descname"><span class="pre">ExtractedInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/models.html#ExtractedInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.models.ExtractedInfo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>从文档中提取的信息模型</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.construction_completed_at">
+<span class="sig-name descname"><span class="pre">construction_completed_at</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.construction_completed_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.construction_email_sent">
+<span class="sig-name descname"><span class="pre">construction_email_sent</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.construction_email_sent" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.construction_email_sent_at">
+<span class="sig-name descname"><span class="pre">construction_email_sent_at</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.construction_email_sent_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.construction_order_code">
+<span class="sig-name descname"><span class="pre">construction_order_code</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.construction_order_code" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.doc_maintenance_total">
+<span class="sig-name descname"><span class="pre">doc_maintenance_total</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.doc_maintenance_total" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.document_content">
+<span class="sig-name descname"><span class="pre">document_content</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.document_content" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.document_name">
+<span class="sig-name descname"><span class="pre">document_name</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.document_name" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.equipment_items">
+<span class="sig-name descname"><span class="pre">equipment_items</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.equipment_items" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.extracted_at">
+<span class="sig-name descname"><span class="pre">extracted_at</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.extracted_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.extraction_error">
+<span class="sig-name descname"><span class="pre">extraction_error</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.extraction_error" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.extraction_status">
+<span class="sig-name descname"><span class="pre">extraction_status</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.extraction_status" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.fiber_info">
+<span class="sig-name descname"><span class="pre">fiber_info</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.fiber_info" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.field_construction_at">
+<span class="sig-name descname"><span class="pre">field_construction_at</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.field_construction_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.get_next_by_extracted_at">
+<span class="sig-name descname"><span class="pre">get_next_by_extracted_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">extracted_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uploader.models.ExtractedInfo.get_next_by_extracted_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.get_previous_by_extracted_at">
+<span class="sig-name descname"><span class="pre">get_previous_by_extracted_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">extracted_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uploader.models.ExtractedInfo.get_previous_by_extracted_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.maintenance_fee">
+<span class="sig-name descname"><span class="pre">maintenance_fee</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.maintenance_fee" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.order_code">
+<span class="sig-name descname"><span class="pre">order_code</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.order_code" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.other_fees">
+<span class="sig-name descname"><span class="pre">other_fees</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.other_fees" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.overall_total_price">
+<span class="sig-name descname"><span class="pre">overall_total_price</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.overall_total_price" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.remarks">
+<span class="sig-name descname"><span class="pre">remarks</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.remarks" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.resource_address">
+<span class="sig-name descname"><span class="pre">resource_address</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.resource_address" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.resource_entry_at">
+<span class="sig-name descname"><span class="pre">resource_entry_at</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.resource_entry_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.service_fee">
+<span class="sig-name descname"><span class="pre">service_fee</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.service_fee" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.terminal_fee">
+<span class="sig-name descname"><span class="pre">terminal_fee</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.terminal_fee" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.total_fees">
+<span class="sig-name descname"><span class="pre">total_fees</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.total_fees" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.total_price">
+<span class="sig-name descname"><span class="pre">total_price</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.total_price" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.uploaded_file">
+<span class="sig-name descname"><span class="pre">uploaded_file</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.uploaded_file" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related object on the forward side of a many-to-one or
+one-to-one (via ForwardOneToOneDescriptor subclass) relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Child.parent</span></code> is a <code class="docutils literal notranslate"><span class="pre">ForwardManyToOneDescriptor</span></code> instance.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.uploaded_file_id">
+<span class="sig-name descname"><span class="pre">uploaded_file_id</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.uploaded_file_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.verification_message">
+<span class="sig-name descname"><span class="pre">verification_message</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.verification_message" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.ExtractedInfo.verification_passed">
+<span class="sig-name descname"><span class="pre">verification_passed</span></span><a class="headerlink" href="#uploader.models.ExtractedInfo.verification_passed" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.models.</span></span><span class="sig-name descname"><span class="pre">UploadedFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/models.html#UploadedFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.models.UploadedFile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<p>上传文件模型</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.DoesNotExist">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#uploader.models.UploadedFile.DoesNotExist" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ObjectDoesNotExist</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.MultipleObjectsReturned">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#uploader.models.UploadedFile.MultipleObjectsReturned" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.address">
+<span class="sig-name descname"><span class="pre">address</span></span><a class="headerlink" href="#uploader.models.UploadedFile.address" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.construction_unit">
+<span class="sig-name descname"><span class="pre">construction_unit</span></span><a class="headerlink" href="#uploader.models.UploadedFile.construction_unit" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.document_count">
+<span class="sig-name descname"><span class="pre">document_count</span></span><a class="headerlink" href="#uploader.models.UploadedFile.document_count" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.extracted_infos">
+<span class="sig-name descname"><span class="pre">extracted_infos</span></span><a class="headerlink" href="#uploader.models.UploadedFile.extracted_infos" title="Link to this definition"></a></dt>
+<dd><p>Accessor to the related objects manager on the reverse side of a
+many-to-one relation.</p>
+<p>In the example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Child</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">parent</span> <span class="o">=</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="n">Parent</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Parent.children</span></code> is a <code class="docutils literal notranslate"><span class="pre">ReverseManyToOneDescriptor</span></code> instance.</p>
+<p>Most of the implementation is delegated to a dynamically defined manager
+class built by <code class="docutils literal notranslate"><span class="pre">create_forward_many_to_many_manager()</span></code> defined below.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.file">
+<span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#uploader.models.UploadedFile.file" title="Link to this definition"></a></dt>
+<dd><p>The descriptor for the file attribute on the model instance. Return a
+FieldFile when accessed so you can write code like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">myapp.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MyModel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instance</span> <span class="o">=</span> <span class="n">MyModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instance</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">size</span>
+</pre></div>
+</div>
+<p>Assign a file object on assignment so you can do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/path/to/hello.world&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">instance</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.file_size">
+<span class="sig-name descname"><span class="pre">file_size</span></span><a class="headerlink" href="#uploader.models.UploadedFile.file_size" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.file_type">
+<span class="sig-name descname"><span class="pre">file_type</span></span><a class="headerlink" href="#uploader.models.UploadedFile.file_type" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.get_next_by_uploaded_at">
+<span class="sig-name descname"><span class="pre">get_next_by_uploaded_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">uploaded_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uploader.models.UploadedFile.get_next_by_uploaded_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.get_previous_by_uploaded_at">
+<span class="sig-name descname"><span class="pre">get_previous_by_uploaded_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;django.db.models.fields.DateTimeField:</span> <span class="pre">uploaded_at&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_next</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uploader.models.UploadedFile.get_previous_by_uploaded_at" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.group_name">
+<span class="sig-name descname"><span class="pre">group_name</span></span><a class="headerlink" href="#uploader.models.UploadedFile.group_name" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#uploader.models.UploadedFile.id" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.is_marked">
+<span class="sig-name descname"><span class="pre">is_marked</span></span><a class="headerlink" href="#uploader.models.UploadedFile.is_marked" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.is_processed">
+<span class="sig-name descname"><span class="pre">is_processed</span></span><a class="headerlink" href="#uploader.models.UploadedFile.is_processed" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.objects">
+<span class="sig-name descname"><span class="pre">objects</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;django.db.models.manager.Manager</span> <span class="pre">object&gt;</span></span><a class="headerlink" href="#uploader.models.UploadedFile.objects" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.original_filename">
+<span class="sig-name descname"><span class="pre">original_filename</span></span><a class="headerlink" href="#uploader.models.UploadedFile.original_filename" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.processed_at">
+<span class="sig-name descname"><span class="pre">processed_at</span></span><a class="headerlink" href="#uploader.models.UploadedFile.processed_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.processing_error">
+<span class="sig-name descname"><span class="pre">processing_error</span></span><a class="headerlink" href="#uploader.models.UploadedFile.processing_error" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.township">
+<span class="sig-name descname"><span class="pre">township</span></span><a class="headerlink" href="#uploader.models.UploadedFile.township" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.models.UploadedFile.uploaded_at">
+<span class="sig-name descname"><span class="pre">uploaded_at</span></span><a class="headerlink" href="#uploader.models.UploadedFile.uploaded_at" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for a deferred-loading field. When the value is read from this
+object the first time, the query is executed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.models.file_upload_path">
+<span class="sig-prename descclassname"><span class="pre">uploader.models.</span></span><span class="sig-name descname"><span class="pre">file_upload_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/models.html#file_upload_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.models.file_upload_path" title="Link to this definition"></a></dt>
+<dd><p>为上传的文件生成存储路径</p>
+</dd></dl>
+
+</section>
+<section id="module-uploader.tests">
+<span id="uploader-tests-module"></span><h2>uploader.tests module<a class="headerlink" href="#module-uploader.tests" title="Link to this heading"></a></h2>
+</section>
+<section id="module-uploader.urls">
+<span id="uploader-urls-module"></span><h2>uploader.urls module<a class="headerlink" href="#module-uploader.urls" title="Link to this heading"></a></h2>
+</section>
+<section id="module-uploader.utils">
+<span id="uploader-utils-module"></span><h2>uploader.utils module<a class="headerlink" href="#module-uploader.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.debug_keyword_search">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">debug_keyword_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#debug_keyword_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.debug_keyword_search" title="Link to this definition"></a></dt>
+<dd><p>添加一些关键字搜索来帮助调试</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_broadband_maintenance_fee">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_broadband_maintenance_fee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_broadband_maintenance_fee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_broadband_maintenance_fee" title="Link to this definition"></a></dt>
+<dd><p>提取宽带维护费价格</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_broadband_service_fee">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_broadband_service_fee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_broadband_service_fee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_broadband_service_fee" title="Link to this definition"></a></dt>
+<dd><p>提取宽带服务费价格</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_fiber_info">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_fiber_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_fiber_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_fiber_info" title="Link to this definition"></a></dt>
+<dd><p>提取光缆信息 - 支持多条光缆记录，返回JSON格式数据</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_info_from_word">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_info_from_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_info_from_word"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_info_from_word" title="Link to this definition"></a></dt>
+<dd><p>从单个Word文档中提取信息</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_path (str): 文件的物理路径
+original_name (str, optional): 原始上传的文件名，用于提取单号</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_info_from_zip">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_info_from_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zip_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_info_from_zip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_info_from_zip" title="Link to this definition"></a></dt>
+<dd><p>从ZIP文件中提取Word文档内容并解析价格信息</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>zip_path (str): ZIP文件的物理路径
+original_name (str, optional): 原始上传的ZIP文件名，用于提取单号</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_maintenance_fee">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_maintenance_fee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_maintenance_fee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_maintenance_fee" title="Link to this definition"></a></dt>
+<dd><p>提取维护费（含税）合计</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_overall_total_price">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_overall_total_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_overall_total_price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_overall_total_price" title="Link to this definition"></a></dt>
+<dd><p>提取总体估算价格</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_price_info">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_price_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_price_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_price_info" title="Link to this definition"></a></dt>
+<dd><p>从文本中提取价格信息</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_terminal_fee">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_terminal_fee</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_terminal_fee"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_terminal_fee" title="Link to this definition"></a></dt>
+<dd><p>提取终端费价格</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_text_with_win32com">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_text_with_win32com</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_text_with_win32com"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_text_with_win32com" title="Link to this definition"></a></dt>
+<dd><p>使用win32com优化提取Word文档内容，增加重试机制和错误处理</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.extract_total_price">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">extract_total_price</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#extract_total_price"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.extract_total_price" title="Link to this definition"></a></dt>
+<dd><p>提取总估算价格</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.normalize_text_for_extraction">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">normalize_text_for_extraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#normalize_text_for_extraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.normalize_text_for_extraction" title="Link to this definition"></a></dt>
+<dd><p>对文本进行归一化处理，移除所有空白字符（包括空格、制表符、换行符等）。</p>
+<p>参数:
+text (str): 待处理的文本</p>
+<p>返回:
+str: 归一化后的文本</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.read_word_document">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">read_word_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#read_word_document"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.read_word_document" title="Link to this definition"></a></dt>
+<dd><p>读取Word文档内容，支持多种方法</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.utils.verify_calculation">
+<span class="sig-prename descclassname"><span class="pre">uploader.utils.</span></span><span class="sig-name descname"><span class="pre">verify_calculation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/utils.html#verify_calculation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.utils.verify_calculation" title="Link to this definition"></a></dt>
+<dd><p>进行验算比较</p>
+</dd></dl>
+
+</section>
+<section id="module-uploader.views">
+<span id="uploader-views-module"></span><h2>uploader.views module<a class="headerlink" href="#module-uploader.views" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.add_construction_remark">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">add_construction_remark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#add_construction_remark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.add_construction_remark" title="Link to this definition"></a></dt>
+<dd><p>添加建设单备注</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.dashboard">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">dashboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#dashboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.dashboard" title="Link to this definition"></a></dt>
+<dd><p>统一的仪表盘视图，处理上传和显示结果</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.delete_construction_remark">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">delete_construction_remark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remark_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#delete_construction_remark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.delete_construction_remark" title="Link to this definition"></a></dt>
+<dd><p>删除建设单备注</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.download_file">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.download_file" title="Link to this definition"></a></dt>
+<dd><p>下载上传的文件</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.file_detail">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">file_detail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#file_detail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.file_detail" title="Link to this definition"></a></dt>
+<dd><p>(已弃用) 显示特定文件的详细提取结果</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.file_history">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">file_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#file_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.file_history" title="Link to this definition"></a></dt>
+<dd><p>(已弃用) 显示历史上传记录</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.format_beijing_datetime">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">format_beijing_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#format_beijing_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.format_beijing_datetime" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.get_construction_unit_from_township">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">get_construction_unit_from_township</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">township</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#get_construction_unit_from_township"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.get_construction_unit_from_township" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.get_default_construction_order_code">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">get_default_construction_order_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order_code</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#get_default_construction_order_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.get_default_construction_order_code" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.get_township_from_address">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">get_township_from_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#get_township_from_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.get_township_from_address" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.load_street_to_construction_unit_mapping">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">load_street_to_construction_unit_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#load_street_to_construction_unit_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.load_street_to_construction_unit_mapping" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.show_result">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">show_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#show_result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.show_result" title="Link to this definition"></a></dt>
+<dd><p>(已弃用) 显示提取结果页面</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.toggle_upload_mark">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">toggle_upload_mark</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#toggle_upload_mark"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.toggle_upload_mark" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.update_construction_email_sent">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">update_construction_email_sent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#update_construction_email_sent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.update_construction_email_sent" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.update_construction_order_code">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">update_construction_order_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#update_construction_order_code"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.update_construction_order_code" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.update_construction_status">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">update_construction_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#update_construction_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.update_construction_status" title="Link to this definition"></a></dt>
+<dd><p>更新建设单进度状态</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.update_construction_unit">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">update_construction_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#update_construction_unit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.update_construction_unit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.update_resource_address">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">update_resource_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#update_resource_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.update_resource_address" title="Link to this definition"></a></dt>
+<dd><p>更新资源地址</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="uploader.views.upload_file">
+<span class="sig-prename descclassname"><span class="pre">uploader.views.</span></span><span class="sig-name descname"><span class="pre">upload_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/views.html#upload_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.views.upload_file" title="Link to this definition"></a></dt>
+<dd><p>(已弃用) 文件上传页面</p>
+</dd></dl>
+
+</section>
+<section id="module-uploader">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-uploader" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="uploader" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="uploader.migrations.html" class="btn btn-neutral float-right" title="uploader.migrations package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, User.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

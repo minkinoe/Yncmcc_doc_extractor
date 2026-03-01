@@ -10,14 +10,17 @@
 - **自动提取**：自动解压 ZIP 并处理其中 `.doc/.docx`
 - **费用计算与验算**：提取维护费、服务费、终端费等并计算汇总
 - **统一面板**：左侧上传与历史记录，右侧展示提取结果
+- **建设管理**：支持建设单进度追踪（现场施工 -> 资源录入 -> 完成），支持资源地址录入与备注管理
 - **便捷复制**：结果页的单号与关键数值支持点击复制
+- **文档生成**：集成 Sphinx 文档生成工具，可自动生成 API 文档
 
 ## 技术栈
 
 - **后端框架**：Django 5.x
 - **文档处理**：python-docx, docx2txt
-- **前端技术**：HTML5, CSS3, JavaScript
+- **前端技术**：HTML5, CSS3, JavaScript (原生)
 - **数据库**：SQLite
+- **文档工具**：Sphinx + Read the Docs Theme
 
 ## 上传规范（重要）
 
@@ -72,20 +75,32 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-如需允许局域网其他设备访问（开发环境）：
+### 6. 生成文档
+
+本项目集成 Sphinx 文档工具，可生成 HTML 格式的 API 文档。
 
 ```bash
-python manage.py runserver 0.0.0.0:8000
+# 生成文档源文件
+sphinx-apidoc -f -o docs .
+
+# 构建 HTML 文档
+.\docs\make.bat html
 ```
 
-并确保 `ALLOWED_HOSTS` 已放行（开发环境可用 `['*']`），配置见 [settings.py](file:///d:/Dev/django_project/wordextractor/wordextractor/settings.py#L26-L30)。
+文档生成后，打开 `docs/_build/html/index.html` 即可查看。
 
 ## 使用方法
 
 1. 访问 `http://127.0.0.1:8000/`
 2. 在左侧上传区域点击或拖拽 `.zip` 文件
 3. 处理完成后会自动跳转到该次上传详情
-4. 点击蓝色单号/数值可复制到剪贴板
+4. **建设管理**：在结果卡片中，您可以：
+   - 修改建设单号
+   - 开启/关闭建设邮件发送状态
+   - 更新建设进度（现场施工、资源录入、完成），系统会自动处理进度的级联更新
+   - 录入资源地址
+   - 添加和删除备注
+5. 点击蓝色单号/数值可复制到剪贴板
 
 ## 支持的文件格式
 
@@ -113,17 +128,22 @@ wordextractor/
 
 - 主页面与上传处理：`dashboard` 视图  
   - [views.py](file:///d:/Dev/django_project/wordextractor/uploader/views.py#L17-L185)
+- 建设进度与备注管理：
+  - [update_construction_status](file:///d:/Dev/django_project/wordextractor/uploader/views.py)
+  - [add_construction_remark](file:///d:/Dev/django_project/wordextractor/uploader/views.py)
 - ZIP 解压与 Word 提取：  
   - [extract_info_from_zip](file:///d:/Dev/django_project/wordextractor/uploader/utils.py#L495-L671)
-- 统一页面模板：  
+- 统一页面模板（含前端逻辑）：  
   - [dashboard.html](file:///d:/Dev/django_project/wordextractor/uploader/templates/uploader/dashboard.html)
 
 ### 数据模型
 
 - 上传记录：`UploadedFile`（保存原文件名、文件路径、集团名称、地址等）  
   - [models.py](file:///d:/Dev/django_project/wordextractor/uploader/models.py#L13-L37)
-- 提取结果：`ExtractedInfo`（按文档维度存储单号、费用、文本等）  
+- 提取结果：`ExtractedInfo`（按文档维度存储单号、费用、建设进度等）  
   - [models.py](file:///d:/Dev/django_project/wordextractor/uploader/models.py#L39-L82)
+- 建设备注：`ConstructionRemark`（存储建设单的备注信息）
+  - [models.py](file:///d:/Dev/django_project/wordextractor/uploader/models.py)
 
 ### 数据库字典
 

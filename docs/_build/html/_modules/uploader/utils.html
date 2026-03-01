@@ -1,0 +1,826 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>uploader.utils &mdash; WordExtractor 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            WordExtractor
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">uploader</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">WordExtractor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">uploader.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for uploader.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pythoncom</span>
+
+<span class="c1"># 尝试导入处理不同格式文档的库</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">docx</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>  <span class="c1"># 处理.docx文件</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;警告: python-docx库未安装，.docx文件处理功能将不可用&quot;</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">docx2txt</span>  <span class="c1"># 处理.doc和.docx文件的备选方案</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;警告: docx2txt库未安装，将尝试使用其他方法&quot;</span><span class="p">)</span>
+    <span class="n">docx2txt</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="extract_text_with_win32com">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_text_with_win32com">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_text_with_win32com</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;使用win32com优化提取Word文档内容，增加重试机制和错误处理&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+    
+    <span class="k">for</span> <span class="n">retry</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 在多线程环境中需要初始化COM</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">pythoncom</span>
+            <span class="n">pythoncom</span><span class="o">.</span><span class="n">CoInitialize</span><span class="p">()</span>
+            
+            <span class="c1"># 使用 win32com 自动化 Word。某些情况下 win32com 的 gen_py 缓存会损坏，</span>
+            <span class="c1"># 导致类似 &quot;module &#39;win32com.gen_py.xxx&#39; has no attribute &#39;CLSIDToPackageMap&#39;&quot; 的错误。</span>
+            <span class="c1"># 为提高鲁棒性，按以下顺序尝试：</span>
+            <span class="c1"># 1) 优先使用 DispatchEx（更适合多线程，且通常能避免 gen_py 的一些问题）</span>
+            <span class="c1"># 2) 若失败，尝试使用 gencache.EnsureDispatch（可能会触发生成/修复 gen_py）</span>
+            <span class="c1"># 3) 若 EnsureDispatch 失败，尝试 gencache.Rebuild 再 EnsureDispatch</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">win32com.client</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># DispatchEx 在多线程或并发环境下更安全</span>
+                <span class="n">word</span> <span class="o">=</span> <span class="n">win32com</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">DispatchEx</span><span class="p">(</span><span class="s2">&quot;Word.Application&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">de</span><span class="p">:</span>
+                <span class="c1"># DispatchEx 失败时，尝试通过 gencache 修复生成的缓存并使用 Dispatch</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="kn">from</span><span class="w"> </span><span class="nn">win32com.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">gencache</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># EnsureDispatch 有时会修复缺失的 gen_py 模块</span>
+                        <span class="n">gencache</span><span class="o">.</span><span class="n">EnsureDispatch</span><span class="p">(</span><span class="s2">&quot;Word.Application&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="c1"># 如果 EnsureDispatch 也失败，尝试 Rebuild 再 EnsureDispatch</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">gencache</span><span class="o">.</span><span class="n">Rebuild</span><span class="p">()</span>
+                            <span class="n">gencache</span><span class="o">.</span><span class="n">EnsureDispatch</span><span class="p">(</span><span class="s2">&quot;Word.Application&quot;</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="c1"># 如果仍然失败，让外层捕获并记录错误</span>
+                            <span class="k">raise</span>
+                    <span class="c1"># 最终以普通 Dispatch 取得对象</span>
+                    <span class="n">word</span> <span class="o">=</span> <span class="n">win32com</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">Dispatch</span><span class="p">(</span><span class="s2">&quot;Word.Application&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e_gencache</span><span class="p">:</span>
+                    <span class="c1"># 最后尝试使用动态派生（dynamic.Dispatch）以绕开 gen_py 缓存问题</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="kn">from</span><span class="w"> </span><span class="nn">win32com.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">dynamic</span>
+                        <span class="n">word</span> <span class="o">=</span> <span class="n">dynamic</span><span class="o">.</span><span class="n">Dispatch</span><span class="p">(</span><span class="s2">&quot;Word.Application&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e_dynamic</span><span class="p">:</span>
+                        <span class="c1"># 将原始错误与 gencache / dynamic 错误都记录并抛出，以便外层捕获</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;win32com Dispatch 失败: DispatchEx error=</span><span class="si">{</span><span class="n">de</span><span class="si">}</span><span class="s2">; gencache error=</span><span class="si">{</span><span class="n">e_gencache</span><span class="si">}</span><span class="s2">; dynamic error=</span><span class="si">{</span><span class="n">e_dynamic</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># 设置可见性和警告行为</span>
+            <span class="n">word</span><span class="o">.</span><span class="n">Visible</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">word</span><span class="o">.</span><span class="n">DisplayAlerts</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="c1"># 使用绝对路径并确保文件存在</span>
+            <span class="n">abs_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">abs_path</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;文件不存在: </span><span class="si">{</span><span class="n">abs_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># 尝试打开文档</span>
+            <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.doc&#39;</span><span class="p">):</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">Documents</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">abs_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="n">word</span><span class="o">.</span><span class="n">Documents</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">abs_path</span><span class="p">)</span>
+            
+            <span class="c1"># 短暂延迟确保文档完全加载</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            
+            <span class="c1"># 提取文本内容</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">Content</span><span class="o">.</span><span class="n">Text</span>
+            
+            <span class="c1"># 清理资源</span>
+            <span class="k">if</span> <span class="n">doc</span><span class="p">:</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">Close</span><span class="p">(</span><span class="n">SaveChanges</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">word</span><span class="p">:</span>
+                <span class="n">word</span><span class="o">.</span><span class="n">Quit</span><span class="p">()</span>
+                <span class="n">word</span> <span class="o">=</span> <span class="kc">None</span>
+                
+            <span class="k">break</span>  <span class="c1"># 成功提取，退出重试循环</span>
+            
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># 清理资源</span>
+            <span class="k">if</span> <span class="n">doc</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">doc</span><span class="o">.</span><span class="n">Close</span><span class="p">(</span><span class="n">SaveChanges</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">if</span> <span class="n">word</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">word</span><span class="o">.</span><span class="n">Quit</span><span class="p">()</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="n">word</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+            
+            <span class="k">if</span> <span class="n">retry</span> <span class="o">&lt;</span> <span class="n">max_retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;win32com提取尝试 </span><span class="si">{</span><span class="n">retry</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> 失败: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">，将重试...&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 重试前等待1秒</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;win32com提取失败（所有尝试）: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">text</span></div>
+
+
+<div class="viewcode-block" id="read_word_document">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.read_word_document">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_word_document</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;读取Word文档内容，支持多种方法&quot;&quot;&quot;</span>
+    <span class="n">full_text</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># 根据文件类型选择不同的读取方法</span>
+    <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.docx&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;Document&#39;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">():</span>
+        <span class="c1"># 使用python-docx处理.docx文件</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;使用python-docx处理.docx文件&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;文档包含 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">paragraphs</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个段落&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">para</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">paragraphs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">para</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">full_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">para</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># 只打印前3个段落内容作为示例</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;段落 </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> 内容预览: </span><span class="si">{</span><span class="n">para</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 读取表格内容</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;文档包含 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">tables</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个表格&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">rows</span><span class="p">:</span>
+                <span class="n">row_text</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">cells</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">cell</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                        <span class="n">row_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">row_text</span><span class="p">:</span>
+                    <span class="n">full_text</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row_text</span><span class="p">))</span>
+    
+    <span class="k">elif</span> <span class="n">docx2txt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># 尝试使用docx2txt处理</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;尝试使用docx2txt处理文件&quot;</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">docx2txt</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">full_text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功提取文本内容，约 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span><span class="si">}</span><span class="s2"> 行&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;内容预览: </span><span class="si">{</span><span class="n">full_text</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;docx2txt处理失败: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">，尝试使用win32com&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 无论前面是否成功，都尝试使用win32com作为备选方案</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">full_text</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;尝试使用win32com处理文档&quot;</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">extract_text_with_win32com</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="n">full_text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功提取文本内容，约 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span><span class="si">}</span><span class="s2"> 行&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;内容预览: </span><span class="si">{</span><span class="n">full_text</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">inner_e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;win32com处理失败: </span><span class="si">{</span><span class="n">inner_e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># 最后尝试一个简单的方法 - 如果是.docx，可以作为zip解压读取XML内容</span>
+            <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.docx&#39;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;尝试将.docx作为zip文件解压读取&quot;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">doc_zip</span><span class="p">:</span>
+                        <span class="c1"># 读取document.xml文件</span>
+                        <span class="k">with</span> <span class="n">doc_zip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;word/document.xml&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">xml_file</span><span class="p">:</span>
+                            <span class="n">xml_content</span> <span class="o">=</span> <span class="n">xml_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+                            <span class="c1"># 简单移除XML标签</span>
+                            <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;[^&gt;]+&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">xml_content</span><span class="p">)</span>
+                            <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+                            <span class="n">full_text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;成功提取部分内容&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">inner_inner_e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;XML解析失败: </span><span class="si">{</span><span class="n">inner_inner_e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;无法提取文档内容&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">full_text</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_text_for_extraction">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.normalize_text_for_extraction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_text_for_extraction</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    对文本进行归一化处理，移除所有空白字符（包括空格、制表符、换行符等）。</span>
+<span class="sd">    </span>
+<span class="sd">    参数:</span>
+<span class="sd">    text (str): 待处理的文本</span>
+<span class="sd">    </span>
+<span class="sd">    返回:</span>
+<span class="sd">    str: 归一化后的文本</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\s\u00A0\u3000\u2000-\u200B\u202F\u205F\uFEFF]+&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="extract_price_info">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_price_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_price_info</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">price_type</span><span class="p">,</span> <span class="n">patterns</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从文本中提取价格信息&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">price_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">price_type</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">price_str</span><span class="si">}</span><span class="s2">元&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">price_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;未找到</span><span class="si">{</span><span class="n">price_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mf">0.0</span></div>
+
+
+<div class="viewcode-block" id="extract_maintenance_fee">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_maintenance_fee">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_maintenance_fee</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取维护费（含税）合计&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;维护费（含税）合计[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;维护费合计[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;维护费（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">extract_price_info</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;维护费（含税）&quot;</span><span class="p">,</span> <span class="n">patterns</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_overall_total_price">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_overall_total_price">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_overall_total_price</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取总体估算价格&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;总体估算[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;总体估算价格[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;总体估算([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;项目总体合计（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;总体估算（含税）共计[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;和商务总体估算（含税）共计[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;.*?和商务总体估算（含税）共计[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">overall_total_price_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;总体估算价格: </span><span class="si">{</span><span class="n">overall_total_price_str</span><span class="si">}</span><span class="s2">元&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">overall_total_price_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;未在文本中找到明确的总体估算价格&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="extract_total_price">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_total_price">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_total_price</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取总估算价格&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;项目合计（含税）总估算([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;总估算([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;总估算[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">total_price_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;总估算价格: </span><span class="si">{</span><span class="n">total_price_str</span><span class="si">}</span><span class="s2">元&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_price_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;未在文本中找到明确的总估算价格&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="extract_broadband_maintenance_fee">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_broadband_maintenance_fee">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_broadband_maintenance_fee</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取宽带维护费价格&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;宽带维护费（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;宽带维护费（含税）[：:]*[^=]*=([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;宽带维护费（含税）合计[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">extract_price_info</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;宽带维护费（含税）&quot;</span><span class="p">,</span> <span class="n">patterns</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_broadband_service_fee">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_broadband_service_fee">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_broadband_service_fee</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取宽带服务费价格&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;宽带服务费（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;宽带服务费（含税）[：:]*[^=]*=([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;宽带服务费（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">extract_price_info</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;宽带服务费（含税）&quot;</span><span class="p">,</span> <span class="n">patterns</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_terminal_fee">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_terminal_fee">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_terminal_fee</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取终端费价格&quot;&quot;&quot;</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;终端费（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;终端费（含税）[：:]*[^=]*=([\d,]+\.?\d*)元&#39;</span><span class="p">),</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;终端费（含税）[：:]*([\d,]+\.?\d*)元&#39;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">extract_price_info</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;终端费（含税）&quot;</span><span class="p">,</span> <span class="n">patterns</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_fiber_info">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_fiber_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_fiber_info</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取光缆信息 - 支持多条光缆记录，返回JSON格式数据&quot;&quot;&quot;</span>
+    <span class="c1"># 尝试多种可能的光缆长度格式</span>
+    <span class="n">fiber_patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆([\d.]+)米&#39;</span><span class="p">),</span>         <span class="c1"># 光缆123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆长度[：:]([\d.]+)米&#39;</span><span class="p">),</span>  <span class="c1"># 光缆长度：123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆长度为([\d.]+)米&#39;</span><span class="p">),</span>  <span class="c1"># 光缆长度为123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆约([\d.]+)米&#39;</span><span class="p">),</span>  <span class="c1"># 光缆约123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([\d.]+)米光缆&#39;</span><span class="p">),</span>  <span class="c1"># 123米光缆</span>
+        <span class="c1"># 添加更多可能的格式</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆总长度[：:]([\d.]+)米&#39;</span><span class="p">),</span>  <span class="c1"># 光缆总长度：123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆总长[：:]([\d.]+)米&#39;</span><span class="p">),</span>    <span class="c1"># 光缆总长：123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光纤([\d.]+)米&#39;</span><span class="p">),</span>         <span class="c1"># 光纤123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆铺设([\d.]+)米&#39;</span><span class="p">),</span>  <span class="c1"># 光缆铺设123米</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;铺设光缆([\d.]+)米&#39;</span><span class="p">)</span>   <span class="c1"># 铺设光缆123米</span>
+    <span class="p">]</span>
+    
+    <span class="c1"># 首先在过滤后的文本中搜索</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== 开始搜索光缆信息 ===&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;过滤后文本预览: </span><span class="si">{</span><span class="n">text</span><span class="p">[:</span><span class="mi">200</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+    
+    <span class="n">fiber_info</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">matched_positions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># 用于记录已匹配的位置，避免重复</span>
+    
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">fiber_patterns</span><span class="p">:</span>
+        <span class="c1"># 使用finditer找到所有匹配</span>
+        <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">pattern</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">start_pos</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="c1"># 检查是否在已匹配的位置附近</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">start_pos</span> <span class="o">-</span> <span class="n">pos</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">matched_positions</span><span class="p">):</span>
+                <span class="n">matched_positions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">start_pos</span><span class="p">)</span>
+                <span class="n">fiber_length_str</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">fiber_length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fiber_length_str</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;在过滤后文本中找到光缆长度: </span><span class="si">{</span><span class="n">fiber_length</span><span class="si">}</span><span class="s2">米 (使用模式: </span><span class="si">{</span><span class="n">pattern</span><span class="o">.</span><span class="n">pattern</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                
+                <span class="c1"># 尝试提取描述信息</span>
+                <span class="n">context_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">start_pos</span> <span class="o">-</span> <span class="mi">50</span><span class="p">)</span>
+                <span class="n">context_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">start_pos</span> <span class="o">+</span> <span class="mi">50</span><span class="p">)</span>
+                <span class="n">context</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">context_start</span><span class="p">:</span><span class="n">context_end</span><span class="p">]</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;光缆&quot;</span>
+                
+                <span class="c1"># 尝试从上下文提取描述</span>
+                <span class="n">description_patterns</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(\w+)光缆&#39;</span><span class="p">),</span>
+                    <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;光缆(\w+)&#39;</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">for</span> <span class="n">desc_pattern</span> <span class="ow">in</span> <span class="n">description_patterns</span><span class="p">:</span>
+                    <span class="n">desc_match</span> <span class="o">=</span> <span class="n">desc_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">desc_match</span> <span class="ow">and</span> <span class="n">desc_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+                        <span class="n">description</span> <span class="o">=</span> <span class="n">desc_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;光缆&quot;</span>
+                        <span class="k">break</span>
+                
+                <span class="n">fiber_info</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">fiber_length</span><span class="p">),</span>
+                    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+                    <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;米&quot;</span>
+                <span class="p">})</span>
+    
+    <span class="c1"># 如果没有找到，返回空列表</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fiber_info</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;未找到光缆信息&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    
+    <span class="k">return</span> <span class="n">fiber_info</span></div>
+
+
+<div class="viewcode-block" id="verify_calculation">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.verify_calculation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_calculation</span><span class="p">(</span><span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;进行验算比较&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># 使用近似比较，因为浮点数计算可能有精度问题</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_fees&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.0001</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✓ 验算通过：计算总和与文档中维护费合计一致&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✗ 验算失败：计算总和(</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_fees&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">元)与文档中维护费合计(</span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">元)不一致&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="debug_keyword_search">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.debug_keyword_search">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">debug_keyword_search</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;添加一些关键字搜索来帮助调试&quot;&quot;&quot;</span>
+    <span class="n">keywords</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;光缆&#39;</span><span class="p">,</span> <span class="s1">&#39;光纤&#39;</span><span class="p">,</span> <span class="s1">&#39;米&#39;</span><span class="p">,</span> <span class="s1">&#39;长度&#39;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;文本中包含的关键字:&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">keywords</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - &#39;</span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s2">&#39; 在文本中找到&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - &#39;</span><span class="si">{</span><span class="n">keyword</span><span class="si">}</span><span class="s2">&#39; 未找到&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_info_from_word">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_info_from_word">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_info_from_word</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">original_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从单个Word文档中提取信息</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (str): 文件的物理路径</span>
+<span class="sd">        original_name (str, optional): 原始上传的文件名，用于提取单号</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;开始处理Word文档: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="n">original_name</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;文件名: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 提取文件名中的英文数字代码部分</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([A-Za-z0-9_]+)&#39;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">order_code</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;从文件名 </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> 中提取到单号: </span><span class="si">{</span><span class="n">order_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 读取Word文档内容</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;开始读取Word文档内容...&quot;</span><span class="p">)</span>
+            <span class="n">full_text</span> <span class="o">=</span> <span class="n">read_word_document</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            
+            <span class="c1"># 不再过滤文本，直接使用完整的原始文本</span>
+            <span class="n">raw_text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span>
+            <span class="n">normalized_text</span> <span class="o">=</span> <span class="n">normalize_text_for_extraction</span><span class="p">(</span><span class="n">raw_text</span><span class="p">)</span>
+            <span class="n">marker_found</span> <span class="o">=</span> <span class="kc">True</span>
+            
+            <span class="k">if</span> <span class="n">marker_found</span><span class="p">:</span>
+                        <span class="c1"># 提取各类价格信息</span>
+                        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="n">order_code</span><span class="p">,</span>
+                            <span class="s1">&#39;maintenance_fee&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s1">&#39;service_fee&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s1">&#39;terminal_fee&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s1">&#39;total_fees&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s1">&#39;overall_total_price&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s1">&#39;total_price&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                            <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="n">raw_text</span><span class="p">,</span>
+                            <span class="s1">&#39;verification_passed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                            <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                            <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;成功&#39;</span>
+                        <span class="p">}</span>
+                        
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== 提取到的价格信息 ===&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;单号: </span><span class="si">{</span><span class="n">order_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取维护费（含税）合计</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_maintenance_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取总体估算价格</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;overall_total_price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_overall_total_price</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取总估算价格</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_total_price</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取宽带维护费价格</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;maintenance_fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_broadband_maintenance_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取宽带服务费价格</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;service_fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_broadband_service_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取终端费价格</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;terminal_fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_terminal_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        
+                        <span class="c1"># 计算费用总和</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_fees&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;maintenance_fee&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;service_fee&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;terminal_fee&#39;</span><span class="p">]</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;宽带维护费、宽带服务费和终端费的总和: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_fees&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">元&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># 提取光缆信息</span>
+                        <span class="n">fiber_info_list</span> <span class="o">=</span> <span class="n">extract_fiber_info</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;fiber_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fiber_info_list</span>
+                        
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;fiber_info&#39;</span><span class="p">]:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;未找到光缆信息&quot;</span><span class="p">)</span>
+                            <span class="n">debug_keyword_search</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;========================</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        
+                        <span class="c1"># 进行验算比较</span>
+                        <span class="n">info</span><span class="p">[</span><span class="s1">&#39;verification_passed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">verify_calculation</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+                        
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;====================</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;未找到标记文本，跳过后续处理&quot;</span><span class="p">)</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="n">order_code</span><span class="p">,</span>
+                    <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                    <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="n">raw_text</span><span class="p">,</span>
+                    <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;失败&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;未找到关键标记文本&#39;</span>
+                <span class="p">})</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;处理文件 </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> 时出错: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="n">order_code</span> <span class="k">if</span> <span class="s1">&#39;order_code&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;未知&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                        <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;失败&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;无法从文件名 </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> 中提取单号&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;文件名格式: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># 即使无法提取单号，也添加结果记录，使用默认值</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="s1">&#39;未知&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+            <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;失败&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;无法从文件名中提取单号&#39;</span>
+        <span class="p">})</span>
+        
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="extract_info_from_zip">
+<a class="viewcode-back" href="../../uploader.html#uploader.utils.extract_info_from_zip">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_info_from_zip</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="n">original_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从ZIP文件中提取Word文档内容并解析价格信息</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        zip_path (str): ZIP文件的物理路径</span>
+<span class="sd">        original_name (str, optional): 原始上传的ZIP文件名，用于提取单号</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;开始处理压缩文件: </span><span class="si">{</span><span class="n">zip_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="n">extracted_files</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># 从ZIP文件名提取单号，优先使用原始文件名</span>
+    <span class="n">zip_file_name</span> <span class="o">=</span> <span class="n">original_name</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">zip_path</span><span class="p">)</span>
+    <span class="c1"># 使用更精确的正则表达式提取EOSC_开头的单号 (例如从 EOSC_4712508269337893_KC... 中提取 EOSC_4712508269337893)</span>
+    <span class="n">zip_code_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(EOSC_[A-Za-z0-9_\-]+)(?:[^A-Za-z0-9_\-]|$)&#39;</span><span class="p">,</span> <span class="n">zip_file_name</span><span class="p">)</span>
+    <span class="n">zip_code_part</span> <span class="o">=</span> <span class="n">zip_code_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">zip_code_match</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">zip_code_part</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;从ZIP文件名提取到单号: </span><span class="si">{</span><span class="n">zip_code_part</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;无法从ZIP文件名 </span><span class="si">{</span><span class="n">zip_file_name</span><span class="si">}</span><span class="s2"> 中提取单号&quot;</span><span class="p">)</span>
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;创建临时目录: </span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 首先验证文件是否为有效的ZIP文件</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">is_zipfile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;提供的文件不是有效的ZIP文件: </span><span class="si">{</span><span class="n">zip_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 解压zip文件</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;开始解压文件...&quot;</span><span class="p">)</span>
+            <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;解压完成，解压到临时目录: </span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># 获取解压后的所有文件</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;开始获取解压后的文件列表...&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;在目录 </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> 中发现 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个文件&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="n">extracted_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;找到文件: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;总共解压出 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">extracted_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个文件&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 处理每个Word文档，包括.doc和.docx格式</span>
+        <span class="n">word_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">extracted_files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s1">&#39;.doc&#39;</span><span class="p">,</span> <span class="s1">&#39;.docx&#39;</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.bak&#39;</span><span class="p">)]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;找到 </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">word_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> 个Word文件(.doc或.docx)&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">word_files</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">word_files</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">处理Word文档: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;文件名: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># 优先使用来自原始ZIP文件名的单号，如果ZIP单号存在则直接使用，不再从Word文件名提取</span>
+            <span class="k">if</span> <span class="n">zip_code_part</span><span class="p">:</span>
+                <span class="n">order_code</span> <span class="o">=</span> <span class="n">zip_code_part</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;使用ZIP文件名的单号: </span><span class="si">{</span><span class="n">order_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># 如果ZIP单号不存在，再尝试从Word文档文件名中提取</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(EOSC_[A-Za-z0-9_\-]+)(?:[^A-Za-z0-9_\-]|$)&#39;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">order_code</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;从Word文件名提取到单号: </span><span class="si">{</span><span class="n">order_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;无法从文件名 </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> 中提取单号&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                
+            <span class="c1"># 读取Word文档内容</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;开始读取Word文档内容...&quot;</span><span class="p">)</span>
+                <span class="n">full_text</span> <span class="o">=</span> <span class="n">read_word_document</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                
+                <span class="n">raw_text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_text</span><span class="p">)</span>
+                <span class="n">normalized_text</span> <span class="o">=</span> <span class="n">normalize_text_for_extraction</span><span class="p">(</span><span class="n">raw_text</span><span class="p">)</span>
+                <span class="n">marker_found</span> <span class="o">=</span> <span class="kc">True</span>
+                
+                <span class="k">if</span> <span class="n">marker_found</span><span class="p">:</span>
+                    <span class="c1"># 提取各类价格信息</span>
+                    <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="n">order_code</span><span class="p">,</span>
+                        <span class="s1">&#39;maintenance_fee&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s1">&#39;service_fee&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s1">&#39;terminal_fee&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s1">&#39;total_fees&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s1">&#39;overall_total_price&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s1">&#39;total_price&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="n">raw_text</span><span class="p">,</span>
+                        <span class="s1">&#39;verification_passed&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                        <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;成功&#39;</span>
+                    <span class="p">}</span>
+                    
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== 提取到的价格信息 ===&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;单号: </span><span class="si">{</span><span class="n">order_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取维护费（含税）合计</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;doc_maintenance_total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_maintenance_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取总体估算价格</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;overall_total_price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_overall_total_price</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取总估算价格</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_price&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_total_price</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取宽带维护费价格</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;maintenance_fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_broadband_maintenance_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取宽带服务费价格</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;service_fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_broadband_service_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取终端费价格</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;terminal_fee&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extract_terminal_fee</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    
+                    <span class="c1"># 计算费用总和</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_fees&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;maintenance_fee&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;service_fee&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;terminal_fee&#39;</span><span class="p">]</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;宽带维护费、宽带服务费和终端费的总和: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;total_fees&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">元&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># 提取光缆信息</span>
+                    <span class="n">fiber_info_list</span> <span class="o">=</span> <span class="n">extract_fiber_info</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;fiber_info&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fiber_info_list</span>
+                    
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;fiber_info&#39;</span><span class="p">]:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;未找到光缆信息&quot;</span><span class="p">)</span>
+                        <span class="n">debug_keyword_search</span><span class="p">(</span><span class="n">normalized_text</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;========================</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># 进行验算比较</span>
+                    <span class="n">info</span><span class="p">[</span><span class="s1">&#39;verification_passed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">verify_calculation</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+                    
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;====================</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;未找到标记文本，跳过后续处理&quot;</span><span class="p">)</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="n">order_code</span><span class="p">,</span>
+                        <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                        <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="n">raw_text</span><span class="p">,</span>
+                        <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;失败&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;未找到关键标记文本&#39;</span>
+                    <span class="p">})</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;处理文件 </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> 时出错: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="n">order_code</span> <span class="k">if</span> <span class="s1">&#39;order_code&#39;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;未知&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">file_name</span><span class="p">,</span>
+                    <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;失败&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="p">})</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;处理压缩文件 </span><span class="si">{</span><span class="n">zip_path</span><span class="si">}</span><span class="s2"> 时出错: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+        <span class="c1"># 添加错误信息到结果中，以便前端展示</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;order_code&#39;</span><span class="p">:</span> <span class="s1">&#39;未知&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;file_name&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">zip_path</span><span class="p">),</span>
+            <span class="s1">&#39;fiber_info&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;document_content&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="s1">&#39;extraction_status&#39;</span><span class="p">:</span> <span class="s1">&#39;失败&#39;</span>
+        <span class="p">})</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># 清理临时目录</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;清理临时目录: </span><span class="si">{</span><span class="n">temp_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, User.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

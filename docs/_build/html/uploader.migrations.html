@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>uploader.migrations package &mdash; WordExtractor 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=2709fde1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="uploader package" href="uploader.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            WordExtractor
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">uploader</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="uploader.html">uploader package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="uploader.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">uploader.migrations package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.admin">uploader.admin module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.apps">uploader.apps module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.models">uploader.models module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.tests">uploader.tests module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.urls">uploader.urls module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.utils">uploader.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader.views">uploader.views module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uploader.html#module-uploader">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WordExtractor</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">uploader</a></li>
+          <li class="breadcrumb-item"><a href="uploader.html">uploader package</a></li>
+      <li class="breadcrumb-item active">uploader.migrations package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/uploader.migrations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="uploader-migrations-package">
+<h1>uploader.migrations package<a class="headerlink" href="#uploader-migrations-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-uploader.migrations.0001_initial">
+<span id="uploader-migrations-0001-initial-module"></span><h2>uploader.migrations.0001_initial module<a class="headerlink" href="#module-uploader.migrations.0001_initial" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0001_initial.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0001_initial.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0001_initial.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0001_initial.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0001_initial.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></span><a class="headerlink" href="#uploader.migrations.0001_initial.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0001_initial.Migration.initial">
+<span class="sig-name descname"><span class="pre">initial</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#uploader.migrations.0001_initial.Migration.initial" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0001_initial.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;CreateModel</span>&#160; <span class="pre">name='UploadedFile',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('file',</span> <span class="pre">&lt;django.db.models.fields.files.FileField&gt;),</span> <span class="pre">('original_filename',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('file_size',</span> <span class="pre">&lt;django.db.models.fields.IntegerField&gt;),</span> <span class="pre">('file_type',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('uploaded_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('processed_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('is_processed',</span> <span class="pre">&lt;django.db.models.fields.BooleanField&gt;),</span> <span class="pre">('processing_error',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('document_count',</span> <span class="pre">&lt;django.db.models.fields.IntegerField&gt;)],</span> <span class="pre">options={'ordering':</span> <span class="pre">['-uploaded_at']}&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='ExtractedInfo',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('code_part',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('document_filename',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('extraction_status',</span> <span class="pre">&lt;django.db.models.fields.CharField&gt;),</span> <span class="pre">('extraction_error',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('maintenance_fee',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('service_fee',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('terminal_fee',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('total_fees',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('doc_maintenance_total',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('overall_total_price',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('total_price',</span> <span class="pre">&lt;django.db.models.fields.DecimalField&gt;),</span> <span class="pre">('fiber_length',</span> <span class="pre">&lt;django.db.models.fields.IntegerField&gt;),</span> <span class="pre">('verification_passed',</span> <span class="pre">&lt;django.db.models.fields.BooleanField&gt;),</span> <span class="pre">('extracted_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('uploaded_file',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)],</span> <span class="pre">options={'ordering':</span> <span class="pre">['-extracted_at']}&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0001_initial.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0002_rename_document_filename">
+<span id="uploader-migrations-0002-rename-document-filename-module"></span><h2>uploader.migrations.0002_rename_document_filename module<a class="headerlink" href="#module-uploader.migrations.0002_rename_document_filename" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0002_rename_document_filename.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0002_rename_document_filename.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0002_rename_document_filename.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0002_rename_document_filename.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0002_rename_document_filename.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0001_initial')]</span></span><a class="headerlink" href="#uploader.migrations.0002_rename_document_filename.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0002_rename_document_filename.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;RemoveField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='code_part'&gt;,</span> <span class="pre">&lt;RemoveField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='document_filename'&gt;,</span> <span class="pre">&lt;RemoveField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='fiber_length'&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='document_content',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='document_name',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='equipment_items',</span> <span class="pre">field=&lt;django.db.models.fields.json.JSONField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='fiber_info',</span> <span class="pre">field=&lt;django.db.models.fields.json.JSONField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='order_code',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='other_fees',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='verification_message',</span> <span class="pre">field=&lt;django.db.models.fields.TextField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='doc_maintenance_total',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='maintenance_fee',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='overall_total_price',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='service_fee',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='terminal_fee',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='total_fees',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AlterField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='total_price',</span> <span class="pre">field=&lt;django.db.models.fields.DecimalField&gt;&gt;,</span> <span class="pre">&lt;AddIndex</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">index=&lt;Index:</span> <span class="pre">fields=['order_code']</span> <span class="pre">name='uploader_ex_order_c_fafeb5_idx'&gt;&gt;,</span> <span class="pre">&lt;AddIndex</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">index=&lt;Index:</span> <span class="pre">fields=['uploaded_file']</span> <span class="pre">name='uploader_ex_uploade_75b9c8_idx'&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0002_rename_document_filename.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name">
+<span id="uploader-migrations-0003-uploadedfile-address-uploadedfile-group-name-module"></span><h2>uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name module<a class="headerlink" href="#module-uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0003_uploadedfile_address_uploadedfile_group_name.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0002_rename_document_filename')]</span></span><a class="headerlink" href="#uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='uploadedfile',</span> <span class="pre">name='address',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='uploadedfile',</span> <span class="pre">name='group_name',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0003_uploadedfile_address_uploadedfile_group_name.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0004_uploadedfile_is_marked">
+<span id="uploader-migrations-0004-uploadedfile-is-marked-module"></span><h2>uploader.migrations.0004_uploadedfile_is_marked module<a class="headerlink" href="#module-uploader.migrations.0004_uploadedfile_is_marked" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0004_uploadedfile_is_marked.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0004_uploadedfile_is_marked.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0004_uploadedfile_is_marked.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0004_uploadedfile_is_marked.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0004_uploadedfile_is_marked.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0003_uploadedfile_address_uploadedfile_group_name')]</span></span><a class="headerlink" href="#uploader.migrations.0004_uploadedfile_is_marked.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0004_uploadedfile_is_marked.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='uploadedfile',</span> <span class="pre">name='is_marked',</span> <span class="pre">field=&lt;django.db.models.fields.BooleanField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0004_uploadedfile_is_marked.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0005_alter_uploadedfile_is_marked">
+<span id="uploader-migrations-0005-alter-uploadedfile-is-marked-module"></span><h2>uploader.migrations.0005_alter_uploadedfile_is_marked module<a class="headerlink" href="#module-uploader.migrations.0005_alter_uploadedfile_is_marked" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0005_alter_uploadedfile_is_marked.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0005_alter_uploadedfile_is_marked.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0005_alter_uploadedfile_is_marked.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0005_alter_uploadedfile_is_marked.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0005_alter_uploadedfile_is_marked.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0004_uploadedfile_is_marked')]</span></span><a class="headerlink" href="#uploader.migrations.0005_alter_uploadedfile_is_marked.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0005_alter_uploadedfile_is_marked.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AlterField</span>&#160; <span class="pre">model_name='uploadedfile',</span> <span class="pre">name='is_marked',</span> <span class="pre">field=&lt;django.db.models.fields.BooleanField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0005_alter_uploadedfile_is_marked.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0006_uploadedfile_township">
+<span id="uploader-migrations-0006-uploadedfile-township-module"></span><h2>uploader.migrations.0006_uploadedfile_township module<a class="headerlink" href="#module-uploader.migrations.0006_uploadedfile_township" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0006_uploadedfile_township.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0006_uploadedfile_township.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0006_uploadedfile_township.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0006_uploadedfile_township.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0006_uploadedfile_township.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0005_alter_uploadedfile_is_marked')]</span></span><a class="headerlink" href="#uploader.migrations.0006_uploadedfile_township.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0006_uploadedfile_township.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='uploadedfile',</span> <span class="pre">name='township',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0006_uploadedfile_township.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0007_uploadedfile_construction_unit">
+<span id="uploader-migrations-0007-uploadedfile-construction-unit-module"></span><h2>uploader.migrations.0007_uploadedfile_construction_unit module<a class="headerlink" href="#module-uploader.migrations.0007_uploadedfile_construction_unit" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0007_uploadedfile_construction_unit.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0007_uploadedfile_construction_unit.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0007_uploadedfile_construction_unit.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0007_uploadedfile_construction_unit.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0007_uploadedfile_construction_unit.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0006_uploadedfile_township')]</span></span><a class="headerlink" href="#uploader.migrations.0007_uploadedfile_construction_unit.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0007_uploadedfile_construction_unit.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='uploadedfile',</span> <span class="pre">name='construction_unit',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0007_uploadedfile_construction_unit.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0008_extractedinfo_construction_order_code">
+<span id="uploader-migrations-0008-extractedinfo-construction-order-code-module"></span><h2>uploader.migrations.0008_extractedinfo_construction_order_code module<a class="headerlink" href="#module-uploader.migrations.0008_extractedinfo_construction_order_code" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0008_extractedinfo_construction_order_code.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0008_extractedinfo_construction_order_code.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0008_extractedinfo_construction_order_code.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0008_extractedinfo_construction_order_code.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0008_extractedinfo_construction_order_code.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0007_uploadedfile_construction_unit')]</span></span><a class="headerlink" href="#uploader.migrations.0008_extractedinfo_construction_order_code.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0008_extractedinfo_construction_order_code.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='construction_order_code',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0008_extractedinfo_construction_order_code.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0009_extractedinfo_construction_email_sent">
+<span id="uploader-migrations-0009-extractedinfo-construction-email-sent-module"></span><h2>uploader.migrations.0009_extractedinfo_construction_email_sent module<a class="headerlink" href="#module-uploader.migrations.0009_extractedinfo_construction_email_sent" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0009_extractedinfo_construction_email_sent.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0009_extractedinfo_construction_email_sent.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0009_extractedinfo_construction_email_sent.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0009_extractedinfo_construction_email_sent.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0009_extractedinfo_construction_email_sent.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0008_extractedinfo_construction_order_code')]</span></span><a class="headerlink" href="#uploader.migrations.0009_extractedinfo_construction_email_sent.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0009_extractedinfo_construction_email_sent.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='construction_email_sent',</span> <span class="pre">field=&lt;django.db.models.fields.BooleanField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='construction_email_sent_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0009_extractedinfo_construction_email_sent.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0010_extractedinfo_construction_completed_at_and_more">
+<span id="uploader-migrations-0010-extractedinfo-construction-completed-at-and-more-module"></span><h2>uploader.migrations.0010_extractedinfo_construction_completed_at_and_more module<a class="headerlink" href="#module-uploader.migrations.0010_extractedinfo_construction_completed_at_and_more" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0010_extractedinfo_construction_completed_at_and_more.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0009_extractedinfo_construction_email_sent')]</span></span><a class="headerlink" href="#uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='construction_completed_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='field_construction_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='resource_entry_at',</span> <span class="pre">field=&lt;django.db.models.fields.DateTimeField&gt;&gt;,</span> <span class="pre">&lt;CreateModel</span>&#160; <span class="pre">name='ConstructionRemark',</span> <span class="pre">fields=[('id',</span> <span class="pre">&lt;django.db.models.fields.BigAutoField&gt;),</span> <span class="pre">('content',</span> <span class="pre">&lt;django.db.models.fields.TextField&gt;),</span> <span class="pre">('created_at',</span> <span class="pre">&lt;django.db.models.fields.DateTimeField&gt;),</span> <span class="pre">('extracted_info',</span> <span class="pre">&lt;django.db.models.fields.related.ForeignKey&gt;)],</span> <span class="pre">options={'ordering':</span> <span class="pre">['-created_at']}&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0010_extractedinfo_construction_completed_at_and_more.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations.0011_extractedinfo_resource_address">
+<span id="uploader-migrations-0011-extractedinfo-resource-address-module"></span><h2>uploader.migrations.0011_extractedinfo_resource_address module<a class="headerlink" href="#module-uploader.migrations.0011_extractedinfo_resource_address" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="uploader.migrations.0011_extractedinfo_resource_address.Migration">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">uploader.migrations.0011_extractedinfo_resource_address.</span></span><span class="sig-name descname"><span class="pre">Migration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_label</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/uploader/migrations/0011_extractedinfo_resource_address.html#Migration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#uploader.migrations.0011_extractedinfo_resource_address.Migration" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Migration</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0011_extractedinfo_resource_address.Migration.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[('uploader',</span> <span class="pre">'0010_extractedinfo_construction_completed_at_and_more')]</span></span><a class="headerlink" href="#uploader.migrations.0011_extractedinfo_resource_address.Migration.dependencies" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="uploader.migrations.0011_extractedinfo_resource_address.Migration.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;AddField</span>&#160; <span class="pre">model_name='extractedinfo',</span> <span class="pre">name='resource_address',</span> <span class="pre">field=&lt;django.db.models.fields.CharField&gt;&gt;]</span></span><a class="headerlink" href="#uploader.migrations.0011_extractedinfo_resource_address.Migration.operations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-uploader.migrations">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-uploader.migrations" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="uploader.html" class="btn btn-neutral float-left" title="uploader package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, User.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
